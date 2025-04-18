@@ -4,13 +4,15 @@ import userRouter from "./userRoutes.js";
 import adminRouter from "./adminRoutes.js";
 import delivererRouter from "./delivererRoutes.js";
 import authRouter from "./authRoutes.js";
+import dataRouter from "./dataRoutes.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
+app.use("/data", dataRouter);
 app.use("/auth", authRouter);
 app.use("/customer", userRouter);
 app.use("/admin", adminRouter);
