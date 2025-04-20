@@ -1,4 +1,4 @@
-type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 type ResponseType = "json" | "text";
 
 interface CallAPIOptions {

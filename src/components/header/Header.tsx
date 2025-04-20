@@ -1,12 +1,15 @@
 import React from "react";
 import styles from "styles/header.module.scss";
 import Search from "./Search";
+import Link from "next/link";
 
 function Header({ categories }: { categories: string[] }) {
   return (
     <header className={styles.wrapper}>
       <div className={styles.upper}>
-        <div className={styles.logo}>Nesture</div>
+        <Link href="/" className={styles.logo}>
+          Nesture
+        </Link>
         <Search categories={categories} />
         <div className={styles.utilsWrapper}>
           <div>Sign in</div>
@@ -28,10 +31,18 @@ function Header({ categories }: { categories: string[] }) {
         </div>
       </div>
       <div className={styles.lower}>
-        <div>Rooms</div>
-        <div>Categories</div>
-        <div>News</div>
-        <div>Special deals</div>
+        <div>
+          <Link href="/rooms">Rooms</Link>
+        </div>
+        <div>
+          <Link href="/categories">Categories</Link>
+        </div>
+        <div>
+          <Link href="/news">News</Link>
+        </div>
+        <div>
+          <Link href="/discounts">Special deals</Link>
+        </div>
       </div>
     </header>
   );
