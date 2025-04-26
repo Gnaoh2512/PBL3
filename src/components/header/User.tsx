@@ -1,26 +1,37 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../../providers/authProvider";
 
 function User() {
-  const { user, loading, error } = useAuth();
+  const { user, logout } = useAuth();
 
-  if (loading) {
-    return <div>Loading...</div>; // You can add a loading spinner or message here
-  }
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
-  if (error) {
-    return <div>Error: {error}</div>; // Display any errors (e.g., failed to fetch user data)
-  }
+  const handleClick = () => {
+    if (user) logout();
+    else window.location.href = "/auth";
+  };
 
   return (
-    <div style={{ whiteSpace: "nowrap" }}>
+    <div style={{ whiteSpace: "nowrap" }} onClick={handleClick}>
       {user ? (
-        <span>
-          <img src={user.icon || "/default-avatar.png"} alt="User icon" style={{ width: 24, height: 24, borderRadius: "50%" }} />
-          {/* Display the user icon if the user is signed in */}
-        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.75" // Thicker stroke
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
       ) : (
         "Sign in"
       )}

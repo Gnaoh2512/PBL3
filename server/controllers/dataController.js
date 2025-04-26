@@ -1,6 +1,24 @@
-import { getCategoryNames, getRoomIdByName, getRoomCategories, getProductsByCategory, getProductCategories, getRoomCategoryByName, getProductById } from "../models/dataModel.js";
+import {
+  getCategoryNames,
+  getRoomIdByName,
+  getRoomCategories,
+  getProductsByCategory,
+  getProductCategories,
+  getRoomCategoryByName,
+  getProductById,
+  getAllProducts,
+  getProductBrands,
+} from "../models/dataModel.js";
 
-// Fetch all category names
+// Helper function to format names
+function formatName(name) {
+  if (!name) return "";
+  return name
+    .replace(/-/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export async function getCategoryNamesController(req, res) {
   try {
     const categoryNames = await getCategoryNames();
@@ -11,13 +29,13 @@ export async function getCategoryNamesController(req, res) {
   }
 }
 
-// Fetch categories for a room
 export async function getRoomCategoriesController(req, res) {
   const { roomName } = req.params;
-  const formattedRoomName = formatName(roomName);
 
   try {
+    const formattedRoomName = formatName(roomName);
     const roomId = await getRoomIdByName(formattedRoomName);
+
     if (!roomId) {
       return res.status(404).json({ error: "Room not found" });
     }
@@ -30,23 +48,25 @@ export async function getRoomCategoriesController(req, res) {
   }
 }
 
-// Fetch products for a specific room and category
 export async function getRoomCategoryProductsController(req, res) {
   const { roomCategory } = req.params;
-  const formattedRoomCategory = formatName(roomCategory);
 
   try {
-    const roomCategoryIds = await getRoomCategoryByName(formattedRoomCategory);
-    if (!roomCategoryIds) {
+    const formattedRoomCategory = formatName(roomCategory);
+    const roomCategoryId = await getRoomCategoryByName(formattedRoomCategory);
+
+    if (!roomCategoryId) {
       return res.status(404).json({ error: "Room category not found" });
     }
 
-    const products = await getProductsByCategory(roomCategoryIds);
+    const products = await getProductsByCategory(roomCategoryId);
     if (products.length === 0) {
       return res.json([]);
     }
 
-    const productCategoryInfo = await getProductCategories(products.map((p) => p.id));
+    const productIds = products.map((p) => p.id);
+    const productCategoryInfo = await getProductCategories(productIds);
+
     const result = products.map((product) => ({
       id: product.id,
       brand: product.brand,
@@ -64,43 +84,43 @@ export async function getRoomCategoryProductsController(req, res) {
 
 export async function getSingleProductController(req, res) {
   const { id } = req.params;
+  const productId = parseInt(id);
 
   try {
-    // Step 1: Get the main product
-    const mainProduct = await getProductById(parseInt(id));
+    // Get main product data
+    const mainProduct = await getProductById(productId);
     if (!mainProduct) {
       return res.status(404).json({ error: `Product with ID ${id} not found` });
     }
 
-    // Step 2: Get categories for the main product
+    // Get categories for main product
     const productCategoryInfo = await getProductCategories([mainProduct.id]);
+
     const mainProductInfo = {
       id: mainProduct.id,
       price: parseFloat(mainProduct.price),
       stock: mainProduct.stock,
-      brand: mainProduct.brand, // Now 'brand' is part of the main product info
+      brand: mainProduct.brand,
       categories: productCategoryInfo[mainProduct.id] || [],
     };
 
-    // Step 3: Get related products in same room category
+    // Get related products
     const relatedProducts = await getProductsByCategory(mainProduct.id_roomCategory);
 
-    // Step 4: Get category info for related products
+    // Get category info for related products
     const relatedProductIds = relatedProducts.map((p) => p.id);
     const relatedCategoriesMap = await getProductCategories(relatedProductIds);
 
-    // Step 5: Merge brand and category information for related products
     const relatedProductsWithDetails = relatedProducts
-      .filter((product) => product.id !== parseInt(id)) // Exclude the main product
+      .filter((product) => product.id !== productId)
       .map((product) => ({
         id: product.id,
         price: parseFloat(product.price),
         stock: product.stock,
-        brand: product.brand, // Brand included for related products
+        brand: product.brand,
         categories: relatedCategoriesMap[product.id] || [],
       }));
 
-    // Step 6: Return full response
     res.json({
       mainProduct: mainProductInfo,
       relatedProducts: relatedProductsWithDetails,
@@ -111,10 +131,30 @@ export async function getSingleProductController(req, res) {
   }
 }
 
-// Helper function to format names
-function formatName(name) {
-  return name
-    .replace(/-/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+export async function getAllProductsController(req, res) {
+  try {
+    const products = await getAllProducts();
+
+    if (!products || products.length === 0) {
+      return res.json([]);
+    }
+
+    const productIds = products.map((p) => p.id);
+
+    const categoriesMap = await getProductCategories(productIds);
+    const brandsMap = await getProductBrands(productIds);
+
+    const result = products.map((product) => ({
+      id: product.id,
+      brand: brandsMap[product.id] || product.brand,
+      price: parseFloat(product.price),
+      stock: product.stock,
+      categories: categoriesMap[product.id] || [],
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching all products:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 }

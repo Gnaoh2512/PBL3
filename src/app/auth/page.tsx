@@ -3,7 +3,6 @@
 import React, { FormEvent, useState } from "react";
 import styles from "./page.module.scss";
 import callAPI from "utils/callAPI";
-import { User } from "types";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -20,7 +19,7 @@ function Page() {
 
     try {
       if (mode === "login") {
-        const res = await callAPI<{ message: string; user: User }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        const res = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
           method: "POST",
           body: { email, password },
         });
@@ -38,16 +37,18 @@ function Page() {
           method: "POST",
           body: { email, password, role: "customer" },
         });
-        console.log("Registered", res);
+
+        if (res.message === "User registered successfully") {
+          window.location.href = "/";
+        }
       } else if (mode === "forgot") {
-        console.log("Sending reset email to", email);
+        alert(`Sending reset email to ${email}`); // Optional alert
       }
 
-      // Clear the password fields after submission
       setPassword("");
       setConfirmPassword("");
     } catch (err) {
-      alert(err || "Something went wrong");
+      alert(err.message || "Something went wrong");
     }
   };
 

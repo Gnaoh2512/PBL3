@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import callAPI from "utils/callAPI";
-import { AuthProvider } from "../providers/authProvider";
-import Header from "components/header/Header";
+import ClientLayout from "./client";
 
 export const metadata: Metadata = {
   title: "Nesture",
@@ -20,10 +19,7 @@ export default async function RootLayout({
     return (
       <html lang="en">
         <body>
-          <AuthProvider>
-            <Header categories={categories} />
-            {children}
-          </AuthProvider>
+          <ClientLayout categories={categories}>{children}</ClientLayout>
         </body>
       </html>
     );

@@ -1,43 +1,72 @@
 import { hashPassword, comparePassword, generateToken } from "../auth.js";
-import { findUserByEmail, createUser, deleteUser, findUserById } from "../models/authModel.js";
+import { findUserByEmail, createUser, deleteUser, findUserById, emailExists } from "../models/authModel.js";
 
-// Register new user
+// Set cookie options
+function getCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  };
+}
+
 export async function register(req, res) {
   const { email, password, role } = req.body;
 
   try {
+    // Input validation
     if (!email || !password || !role) {
-      return res.status(400).json({ message: "Missing fields" });
+      return res.status(400).json({ message: "Email, password are required" });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    // Validate password strength
+    if (password.length < 3) {
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
+    }
+
+    // Restrict admin registration
     if (role === "admin") {
       return res.status(403).json({ message: "Cannot register as admin" });
     }
 
-    const existingUser = await findUserByEmail(email);
-    if (existingUser) {
-      return res.status(401).json({ message: "Email already registered" });
+    // Check if email already exists
+    const emailAlreadyExists = await emailExists(email);
+    if (emailAlreadyExists) {
+      return res.status(409).json({ message: "Email already registered" });
     }
 
+    // Create user with hashed password
     const hashedPassword = await hashPassword(password);
     const newUser = await createUser(email, hashedPassword, role);
+
+    if (!newUser) {
+      return res.status(500).json({ message: "Failed to create user" });
+    }
+
+    // Generate JWT token
     const token = generateToken({ id: newUser.id });
 
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // Set cookie
+    res.cookie("jwt", token, getCookieOptions());
+
+    // Simply return the user without the password field
+    const { password: _, ...userWithoutPassword } = newUser;
 
     return res.status(201).json({
       message: "User registered successfully",
-      userId: newUser.id,
+      user: userWithoutPassword,
       token,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
+    console.error("Registration error:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 }
 
@@ -46,62 +75,105 @@ export async function login(req, res) {
   const { email, password } = req.body;
 
   try {
+    // Input validation
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
+    // Find user by email
     const user = await findUserByEmail(email);
+
+    // Check credentials
     if (!user || !(await comparePassword(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // Generate JWT token
     const token = generateToken({ id: user.id });
 
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // Set cookie
+    res.cookie("jwt", token, getCookieOptions());
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
 
     return res.status(200).json({
       message: "Login successful",
-      userId: user.id,
+      user: userWithoutPassword,
       token,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
+    console.error("Login error:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 }
 
+// Logout user
 export function logout(req, res) {
-  res.clearCookie("jwt", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-  });
-
-  return res.status(200).json({ message: "Logged out successfully" });
-}
-
-export function profile(req, res) {
-  return res.status(200).json({
-    message: "This is a protected route",
-    user: req.user,
-  });
-}
-
-export async function deleteAccount(req, res) {
   try {
+    // Clear JWT cookie
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+// Get user profile
+export async function profile(req, res) {
+  try {
+    // Check if user exists
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    // Get user data
     const user = await findUserById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    await deleteUser(req.user.id);
+    // Remove password from response
+    const { password, ...userWithoutPassword } = user;
 
+    return res.status(200).json({
+      user: userWithoutPassword,
+    });
+  } catch (err) {
+    console.error("Profile error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+// Delete user account
+export async function deleteAccount(req, res) {
+  try {
+    // Check if user exists
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const user = await findUserById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete user
+    const deleted = await deleteUser(req.user.id);
+
+    if (!deleted) {
+      return res.status(500).json({ message: "Failed to delete account" });
+    }
+
+    // Clear JWT cookie
     res.clearCookie("jwt", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -110,7 +182,7 @@ export async function deleteAccount(req, res) {
 
     return res.status(200).json({ message: "Account deleted successfully" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
+    console.error("Account deletion error:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 }

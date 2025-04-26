@@ -17,8 +17,9 @@ export interface User {
   role: string;
 }
 
-export interface AuthContextType {
+export type AuthContextType = {
   user: User | null;
   loading: boolean;
   error: string | null;
-}
+  logout: () => Promise<void>;
+};

@@ -13,18 +13,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getUserProfile = async () => {
     try {
-      const response = await callAPI<{ data: { user: User } }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`);
-      console.log(response);
-      if (response?.data?.user) {
-        setUser(response.data.user);
+      const response = await callAPI<{ message: string; user: User }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`);
+
+      if (response?.user) {
+        setUser(response.user);
       } else {
-        setError("User data not found");
+        setUser(null);
+        setError(null);
       }
     } catch (err) {
-      setError("Failed to load user data");
-      console.error(err);
+      if (err || "Unauthorize") {
+        setUser(null);
+        setError(null);
+      } else {
+        setError("Failed to load user data");
+        console.error(err);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const res = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, { method: "POST" });
+      console.log(res.message);
+      setUser(null);
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
   };
 
@@ -32,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getUserProfile();
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, error }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading, error, logout }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = (): AuthContextType => {
