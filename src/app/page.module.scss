@@ -1,0 +1,177 @@
+.hero {
+  display: flex;
+  width: 100%;
+  height: 25rem;
+  gap: 1.5rem;
+
+  img {
+    height: 100%;
+    width: auto;
+  }
+}
+
+.left {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+  background-color: #c9f2c7;
+  border-radius: 16px;
+  text-align: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+  cursor: pointer;
+
+  .des {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+
+    span {
+      font-size: 3rem;
+    }
+
+    p {
+      font-size: 1.5rem;
+      margin: 0.5rem 0 2rem;
+    }
+
+    button {
+      background-color: #000;
+      color: #fff;
+      height: 3rem;
+      padding: 0 2rem;
+      border-radius: 10rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      }
+    }
+  }
+
+  img {
+    transition: border-radius 0.3s;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+    img {
+      border-top-left-radius: 10rem;
+      border-bottom-left-radius: 10rem;
+    }
+  }
+}
+
+.right {
+  height: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+  display: flex;
+  cursor: pointer;
+
+  &::before {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1;
+    color: #fff;
+    font-size: 1.5rem;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 1));
+    z-index: 0;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+.rooms,
+.popular {
+  width: fit-content;
+  margin-top: 6rem;
+  display: flex;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+
+  &::before {
+    content: "Cozy Corners";
+    text-align: center;
+    width: 100%;
+    font-size: 2rem;
+    display: block;
+    position: absolute;
+    top: -3.5rem;
+  }
+
+  .item {
+    border-radius: 10px;
+    transition: box-shadow 0.3s;
+    padding: 1rem;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  .name {
+    text-align: center;
+  }
+}
+
+.rooms {
+  img {
+    border-radius: 50%;
+    width: 10rem;
+    height: 10rem;
+  }
+
+  &::before {
+    content: "Organize your kitchen";
+  }
+}
+
+.popular {
+  &::before {
+    content: "Shop our most popular categories";
+  }
+
+  img {
+    border-radius: 12px;
+    width: 12rem;
+    height: 12rem;
+  }
+
+  .name {
+    width: 12rem;
+  }
+}

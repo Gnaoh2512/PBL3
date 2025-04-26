@@ -27,14 +27,14 @@ function Search({ categories }: { categories: string[] }) {
       <div className={styles.searchBar}>
         <input type="text" ref={inputRef} placeholder="Explore our store" onChange={handleInput} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} />
         <button type="button" className={styles.clearBtn} onClick={handleClear}>
-          <div>
+          <div style={{ padding: "0.5rem" }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path d="M13.414,12l6.293-6.293a1,1,0,0,0-1.414-1.414L12,10.586,5.707,4.293A1,1,0,0,0,4.293,5.707L10.586,12,4.293,18.293a1,1,0,1,0,1.414,1.414L12,13.414l6.293,6.293a1,1,0,0,0,1.414-1.414Z"></path>
             </svg>
           </div>
         </button>
         <button type="submit" className={styles.searchBtn} aria-label="Search">
-          <div>
+          <div style={{ padding: "0.5rem" }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
                 fillRule="evenodd"

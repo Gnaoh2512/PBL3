@@ -2,6 +2,7 @@ import React from "react";
 import styles from "styles/header.module.scss";
 import Search from "./Search";
 import Link from "next/link";
+import User from "components/header/User";
 
 function Header({ categories }: { categories: string[] }) {
   return (
@@ -12,8 +13,8 @@ function Header({ categories }: { categories: string[] }) {
         </Link>
         <Search categories={categories} />
         <div className={styles.utilsWrapper}>
-          <div>Sign in</div>
-          <div>
+          <User />
+          <div style={{ padding: "0.5rem", aspectRatio: 1 }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
                 fillRule="evenodd"
@@ -22,7 +23,7 @@ function Header({ categories }: { categories: string[] }) {
               ></path>
             </svg>
           </div>
-          <div>
+          <div style={{ padding: "0.5rem", aspectRatio: 1 }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path fillRule="evenodd" clipRule="evenodd" d="m5.766 5-.618-3H1v2h2.518l2.17 10.535L6.18 17h14.307l2.4-12zM7.82 15l-1.6-8h14.227l-1.6 8z"></path>
               <path d="M10.667 20.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m8.333 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"></path>
@@ -35,7 +36,7 @@ function Header({ categories }: { categories: string[] }) {
           <Link href="/rooms">Rooms</Link>
         </div>
         <div>
-          <Link href="/categories">Categories</Link>
+          <Link href="/products">Products</Link>
         </div>
         <div>
           <Link href="/news">News</Link>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import callAPI from "utils/callAPI";
+import { AuthProvider } from "../providers/authProvider";
 import Header from "components/header/Header";
 
 export const metadata: Metadata = {
@@ -19,8 +20,10 @@ export default async function RootLayout({
     return (
       <html lang="en">
         <body>
-          <Header categories={categories} />
-          {children}
+          <AuthProvider>
+            <Header categories={categories} />
+            {children}
+          </AuthProvider>
         </body>
       </html>
     );
