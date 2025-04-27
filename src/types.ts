@@ -14,12 +14,11 @@ export type RoomCategory = {
 export interface User {
   id: string;
   email: string;
-  role: string;
+  role: "customer" | "admin" | "deliverer";
 }
 
 export type AuthContextType = {
   user: User | null;
   loading: boolean;
-  error: string | null;
   logout: () => Promise<void>;
 };

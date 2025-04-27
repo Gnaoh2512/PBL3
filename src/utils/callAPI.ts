@@ -3,7 +3,7 @@ type ResponseType = "json" | "text";
 
 interface CallAPIOptions {
   method?: RequestMethod;
-  body?: Record<string, string>;
+  body?: object;
   headers?: HeadersInit;
   responseType?: ResponseType;
 }

@@ -14,7 +14,7 @@ export const comparePassword = async (inputPassword, hashedPassword) => {
 };
 
 export const generateToken = (user) => {
-  return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+  return jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
 };
@@ -36,7 +36,7 @@ export const protect = (req, res, next) => {
 };
 
 export const isAdmin = (req, res, next) => {
-  if (!req.user && req.user.role !== "admin") {
+  if (!req.user || req.user.role !== "admin") {
     return res.status(403).json({ message: "Forbidden, you are not an admin" });
   }
   return next();

@@ -55,7 +55,7 @@ export async function updateUser(id, userData) {
 
   const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(", ");
 
-  const rows = await executeQuery(`UPDATE "AuthedUser" SET ${setClause}, updated_at = NOW() WHERE id = $1 RETURNING *`, [id, ...values]);
+  const rows = await executeQuery(`UPDATE "AuthedUser" SET ${setClause} WHERE id = $1 RETURNING *`, [id, ...values]);
 
   return rows.length > 0 ? rows[0] : null;
 }
