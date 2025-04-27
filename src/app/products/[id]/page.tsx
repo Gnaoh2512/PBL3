@@ -11,50 +11,109 @@ type res = {
   relatedProducts: Product[];
 };
 
+type CartItem = {
+  id: number;
+  quantity: number;
+};
+
 function Page() {
   const { id } = useParams();
   const [product, setProduct] = useState<res | null>(null);
+  const [quantity, setQuantity] = useState("1");
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const cartItem = cartItems.find((item) => item.id === Number(id));
+
+  useEffect(() => {
+    if (cartItem) {
+      setQuantity(String(cartItem.quantity));
+    }
+  }, [cartItem]);
 
   useEffect(() => {
     if (!id) return;
 
     const fetchProduct = async () => {
-      try {
-        const data = await callAPI<res>(`${process.env.NEXT_PUBLIC_API_URL}/data/products/${id}`);
-        setProduct(data);
-        console.log(data);
-      } catch (err) {
-        console.error("Error fetching product:", err);
-      }
+      const data = await callAPI<res>(`${process.env.NEXT_PUBLIC_API_URL}/data/products/${id}`);
+      setProduct(data);
     };
 
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      const cartData = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
+      setCartItems(cartData.items || []);
+    };
+    fetchCart();
+  }, []);
+
+  const handleUpdateItem = async () => {
+    if (!product?.mainProduct.id || isNaN(Number(quantity))) return;
+    if (cartItem && Number(quantity) === cartItem?.quantity) return alert("Select different quantity to update");
+
+    setIsLoading(true);
+    try {
+      const response = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`, {
+        method: "POST",
+        body: {
+          productId: String(product.mainProduct.id),
+          quantity: quantity,
+        },
+      });
+      alert(response.message);
+      const cartData = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
+      setCartItems(cartData.items || []);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = event.target.value;
+
+    if (!isNaN(Number(newQuantity)) && Number(newQuantity) >= 1) {
+      setQuantity(newQuantity);
+    }
+  };
+
+  if (!product) {
+    return <div className={styles.loading}>Loading product...</div>;
+  }
+
   return (
     <div id="product">
       <div className={styles.main}>
         <div className={styles.imgWrapper}>
-          <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${product?.mainProduct.id}_1.webp`} alt="main" />
-          <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${product?.mainProduct.id}_2.webp`} alt="main" />
+          <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${product.mainProduct.id}_1.webp`} alt="main" />
+          <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${product.mainProduct.id}_2.webp`} alt="main" />
         </div>
         <div className={styles.des}>
           <div className={styles.wrapper}>
-            <p className={styles.brand}>{product?.mainProduct.brand}</p>
+            <p className={styles.brand}>{product.mainProduct.brand}</p>
             <p className={styles.cat}>
-              {product?.mainProduct.categories?.map((cat, i) => (
+              {product.mainProduct.categories?.map((cat, i) => (
                 <span key={i}>
                   {cat}
-                  {i < product?.mainProduct.categories.length - 1 ? ", " : ""}
+                  {i < product.mainProduct.categories.length - 1 ? ", " : ""}
                 </span>
               ))}
             </p>
-            <p className={styles.number}>
-              <span>Available: {product?.mainProduct.stock}</span>
-              <span>${product?.mainProduct.price}</span>
-            </p>
+            <div className={styles.number}>
+              <div>
+                <span>Available: {product.mainProduct.stock}</span>
+                <div>
+                  <label htmlFor="quantity">Quantity: </label>
+                  <input id="quantity" type="text" value={quantity} onChange={handleQuantityChange} className={styles.quantityInput} />
+                </div>
+              </div>
+              <span>${product.mainProduct.price}</span>
+            </div>
           </div>
-          <button>Add to cart</button>
+
+          {isLoading ? <button disabled>Processing...</button> : <button onClick={handleUpdateItem}>{cartItem ? "Update Cart" : "Add to Cart"}</button>}
         </div>
       </div>
     </div>

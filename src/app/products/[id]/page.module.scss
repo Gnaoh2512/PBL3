@@ -35,6 +35,7 @@
   }
 
   .des {
+    width: 35rem;
     padding: 0 2rem;
     max-height: 50%;
     display: flex;
@@ -50,12 +51,17 @@
     }
 
     .number {
-      margin-top: 2rem;
+      margin-top: 1rem;
       display: flex;
       justify-content: space-between;
 
       span:nth-child(2) {
         font-size: 2rem;
+      }
+
+      input {
+        width: 2rem;
+        text-align: center;
       }
     }
 
@@ -65,6 +71,7 @@
       border-radius: 50rem;
       padding: 1rem;
       color: #fff;
+      margin-top: 1rem;
     }
   }
 }

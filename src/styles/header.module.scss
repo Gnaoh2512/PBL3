@@ -15,7 +15,7 @@
     position: absolute;
     bottom: -1px;
     height: 3px;
-    background-color: #dbdbdb;
+    background-color: #000;
   }
 }
 
@@ -137,6 +137,12 @@
     min-width: 2rem;
     font-size: 1.25rem;
     font-weight: 600;
+  }
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0.5rem;
   }
 }
 

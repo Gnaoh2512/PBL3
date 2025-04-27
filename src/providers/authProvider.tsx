@@ -9,7 +9,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const getUserProfile = async () => {
     try {
@@ -19,15 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(response.user);
       } else {
         setUser(null);
-        setError(null);
-      }
-    } catch (err) {
-      if (err || "Unauthorize") {
-        setUser(null);
-        setError(null);
-      } else {
-        setError("Failed to load user data");
-        console.error(err);
       }
     } finally {
       setLoading(false);
@@ -36,11 +26,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      const res = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, { method: "POST" });
-      console.log(res.message);
+      await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, { method: "POST" });
+    } finally {
       setUser(null);
-    } catch (err) {
-      console.error("Logout failed:", err);
     }
   };
 
@@ -48,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getUserProfile();
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, error, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading, logout }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = (): AuthContextType => {
