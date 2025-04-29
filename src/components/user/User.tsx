@@ -60,8 +60,8 @@ function User() {
   };
 
   const handleLogout = () => {
-    logout();
-    window.location.href = "/";
+    logout(); // Calls the logout function from useAuth context
+    window.location.href = "/"; // Redirect to home page or login page
   };
 
   return (
@@ -83,6 +83,7 @@ function User() {
         </button>
       </div>
 
+      {/* Log Out Button */}
       <button onClick={handleLogout} className={styles.logoutButton}>
         Log Out
       </button>
@@ -125,4 +126,3 @@ function User() {
 }
 
 export default User;
-

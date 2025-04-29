@@ -64,5 +64,6 @@ export async function deliverOrderAndInsertHistory(orderId, delivererId) {
 export async function getOrderById(orderId) {
   const rows = await executeQuery(`SELECT * FROM "Order" WHERE id = $1`, [orderId]);
 
+
   return rows.length > 0 ? rows[0] : null;
 }

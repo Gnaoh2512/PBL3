@@ -10,4 +10,5 @@ adminRouter.post("/product", createProductController);
 
 adminRouter.get("/order", getAllOrdersController);
 
+
 export default adminRouter;

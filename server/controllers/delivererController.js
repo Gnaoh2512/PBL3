@@ -38,12 +38,14 @@ export async function getAllOrdersController(req, res) {
     });
   } catch (err) {
     console.error("Error fetching all orders:", err);
+
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
 export async function deliverOrderAndInsertHistoryController(req, res) {
   const { orderId, delivererId } = req.body;
+
 
   if (!orderId) {
     return res.status(400).json({ message: "Order ID is required" });
@@ -75,6 +77,7 @@ export async function deliverOrderAndInsertHistoryController(req, res) {
     });
   } catch (err) {
     console.error("Error delivering order and inserting history:", err);
+
     res.status(500).json({ message: "Internal Server Error" });
   }
 }

@@ -27,4 +27,5 @@ export async function getAllOrders() {
   } catch (err) {
     throw new Error("Error fetching all orders: " + err.message);
   }
+
 }

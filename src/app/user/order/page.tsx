@@ -35,6 +35,7 @@ function Page() {
         const response = await callAPI<{ orders: Order[] }>(`${process.env.NEXT_PUBLIC_API_URL}/${user?.role}/order`);
         console.log("Orders fetched:", response.orders);
         setOrders(response.orders || []);
+
       } finally {
         setIsLoading(false);
       }
