@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import callAPI from "utils/callAPI";
-import Header from "components/header/Header";
+import ClientLayout from "./client";
 
 export const metadata: Metadata = {
   title: "Nesture",
@@ -19,8 +19,7 @@ export default async function RootLayout({
     return (
       <html lang="en">
         <body>
-          <Header categories={categories} />
-          {children}
+          <ClientLayout categories={categories}>{children}</ClientLayout>
         </body>
       </html>
     );

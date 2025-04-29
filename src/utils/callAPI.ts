@@ -3,7 +3,7 @@ type ResponseType = "json" | "text";
 
 interface CallAPIOptions {
   method?: RequestMethod;
-  body?: Record<string, string>;
+  body?: object;
   headers?: HeadersInit;
   responseType?: ResponseType;
 }
@@ -18,6 +18,7 @@ async function callAPI<T>(url: string, options: CallAPIOptions = {}): Promise<T>
       ...headers,
     },
     ...(body && { body: JSON.stringify(body) }),
+    credentials: "include", // optional: for cookie-based auth
   };
 
   const response = await fetch(url, fetchOptions);
@@ -27,7 +28,9 @@ async function callAPI<T>(url: string, options: CallAPIOptions = {}): Promise<T>
     return response.text() as Promise<T>;
   }
 
-  return response.json() as Promise<T>;
+  // safe parse: avoid throwing if no body
+  const text = await response.text();
+  return (text ? JSON.parse(text) : {}) as T;
 }
 
 export default callAPI;

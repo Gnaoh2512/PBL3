@@ -1,0 +1,36 @@
+.heading {
+  font-size: 2.5rem;
+  margin-top: 4rem;
+  text-transform: capitalize;
+}
+
+.description {
+  width: 75%;
+}
+
+.list {
+  margin-top: 4rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.item {
+  width: 25%;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.imgWrapper {
+  overflow: hidden;
+  border-radius: 10px;
+
+  img {
+    transition: transform 0.3s ease-out;
+    width: 100%;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}

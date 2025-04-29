@@ -1,0 +1,77 @@
+.main {
+  display: flex;
+  height: calc(50vh);
+  margin-top: 10rem;
+  align-items: center;
+
+  .imgWrapper {
+    aspect-ratio: 1;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      height: 100%;
+      position: absolute;
+
+      &:nth-child(2) {
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+
+      &:hover {
+        &:nth-child(2) {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .des {
+    width: 35rem;
+    padding: 0 2rem;
+    max-height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .brand {
+      font-size: 2rem;
+    }
+
+    .cat {
+      font-size: 1.5rem;
+    }
+
+    .number {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+
+      span:nth-child(2) {
+        font-size: 2rem;
+      }
+
+      input {
+        width: 2rem;
+        text-align: center;
+      }
+    }
+
+    button {
+      width: 100%;
+      background-color: #000;
+      border-radius: 50rem;
+      padding: 1rem;
+      color: #fff;
+      margin-top: 1rem;
+    }
+  }
+}
