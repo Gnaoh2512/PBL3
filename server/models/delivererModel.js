@@ -10,21 +10,60 @@ async function executeQuery(query, params = []) {
   }
 }
 
-export async function getPendingOrders() {
-  return executeQuery('SELECT * FROM "Order" WHERE status = $1', ["pending"]);
+export async function getAllOrders() {
+  try {
+    const result = await executeQuery(
+      `SELECT 
+        oi.id AS order_item_id, 
+        o.id AS order_id, 
+        o.status, 
+        o.time, 
+        oi.product_id, 
+        oi.quantity, 
+        oi.price_at_order
+      FROM "Order" o
+      JOIN "OrderItem" oi ON o.id = oi.order_id
+      WHERE o.status = 'pending'`
+    );
+
+    return result;
+  } catch (err) {
+    console.error("Error fetching all orders:", err);
+    return [];
+  }
 }
 
-export async function markOrderAsDelivered(orderId) {
-  if (!orderId) return null;
+export async function deliverOrderAndInsertHistory(orderId, delivererId) {
+  const client = await pool.connect();
 
-  const rows = await executeQuery('UPDATE "Order" SET status = $1, delivered_at = NOW() WHERE id = $2 RETURNING *', ["delivered", orderId]);
+  try {
+    await client.query("BEGIN");
 
-  return rows.length > 0 ? rows[0] : null;
+    const updatedOrder = await client.query(`UPDATE "Order" SET status = $1 WHERE id = $2 RETURNING *`, ["delivered", orderId]);
+
+    if (updatedOrder.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    const order = updatedOrder.rows[0];
+
+    await client.query(`INSERT INTO "DeliverHistory" (deliverer_id, order_id, time) VALUES ($1, $2, NOW())`, [delivererId, order.id]);
+
+    await client.query("COMMIT");
+    return order;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error delivering order:", error.message);
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function getOrderById(orderId) {
-  if (!orderId) return null;
+  const rows = await executeQuery(`SELECT * FROM "Order" WHERE id = $1`, [orderId]);
 
-  const rows = await executeQuery('SELECT * FROM "Order" WHERE id = $1', [orderId]);
+
   return rows.length > 0 ? rows[0] : null;
 }

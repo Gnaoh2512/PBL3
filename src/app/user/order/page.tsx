@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import callAPI from "utils/callAPI";
 import styles from "./page.module.scss";
 import Link from "next/link";
+import { useAuth } from "../../../providers/authProvider";
 
 // Define the OrderItem type for individual items
 type OrderItem = {
@@ -24,25 +25,43 @@ type Order = {
 function Page() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await callAPI<{ orders: Order[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/order`);
+        const response = await callAPI<{ orders: Order[] }>(`${process.env.NEXT_PUBLIC_API_URL}/${user?.role}/order`);
         console.log("Orders fetched:", response.orders);
         setOrders(response.orders || []);
-      } catch (err) {
-        setError("Failed to fetch orders");
-        console.error("Error fetching orders:", err);
+
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [user?.role]);
+
+  const markAsDelivered = async () => {
+    if (!selectedOrder) return;
+
+    try {
+      setIsLoading(true);
+
+      await callAPI(`${process.env.NEXT_PUBLIC_API_URL}/deliverer/order`, {
+        method: "PUT",
+        body: { orderId: selectedOrder.order_id, delivererId: user?.id },
+      });
+
+      const updatedOrders = orders.filter((order) => order.order_id !== selectedOrder.order_id);
+      setOrders(updatedOrders);
+      setSelectedOrder(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const closeModal = () => {
     setSelectedOrder(null);
@@ -50,10 +69,6 @@ function Page() {
 
   if (isLoading) {
     return <div className={styles.loading}>Loading orders...</div>;
-  }
-
-  if (error) {
-    return <div className={styles.error}>{error}</div>;
   }
 
   if (orders.length === 0) {
@@ -89,6 +104,13 @@ function Page() {
                 </Link>
               ))}
             </ul>
+
+            {user?.role === "deliverer" && (
+              <button className={styles.delivererButton} onClick={markAsDelivered}>
+                Mark as Delivered
+              </button>
+            )}
+
             <button className={styles.closeButton} onClick={closeModal}>
               Close
             </button>

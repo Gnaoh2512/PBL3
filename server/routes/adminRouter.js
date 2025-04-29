@@ -1,16 +1,14 @@
 import express from "express";
 import { protect, isAdmin } from "../auth.js";
-import { createProduct, getAllUsers } from "../controllers/adminController.js";
+import { createProductController, getAllOrdersController } from "../controllers/adminController.js";
 
 const adminRouter = express.Router();
 
-// Admin Routes
 adminRouter.use(protect, isAdmin);
 
-// Manage Products
-adminRouter.post("/product", createProduct);
+adminRouter.post("/product", createProductController);
 
-// Get All Users
-adminRouter.get("/users", getAllUsers);
+adminRouter.get("/order", getAllOrdersController);
+
 
 export default adminRouter;

@@ -10,20 +10,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const getUserProfile = async () => {
-    try {
-      const response = await callAPI<{ message: string; user: User }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`);
-
-      if (response?.user) {
-        setUser(response.user);
-      } else {
-        setUser(null);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const logout = async () => {
     try {
       await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, { method: "POST" });
@@ -33,6 +19,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        const response = await callAPI<{ message: string; user: User }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`);
+
+        if (response?.user) {
+          setUser(response.user);
+        } else {
+          setUser(null);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     getUserProfile();
   }, []);
 

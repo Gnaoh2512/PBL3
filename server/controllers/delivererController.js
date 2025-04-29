@@ -1,17 +1,51 @@
-import { getPendingOrders, markOrderAsDelivered, getOrderById } from "../models/delivererModel.js";
+import { getOrderById, getAllOrders, deliverOrderAndInsertHistory } from "../models/delivererModel.js";
 
-export async function getPendingOrdersController(req, res) {
+// Fetch all orders with categories and brands
+export async function getAllOrdersController(req, res) {
   try {
-    const orders = await getPendingOrders();
-    res.status(200).json(orders);
+    const result = await getAllOrders();
+
+    if (!result || result.length === 0) {
+      return res.status(200).json({ orders: [] });
+    }
+
+    const orders = result.reduce((acc, row) => {
+      const { order_item_id, order_id, status, time, product_id, quantity, price_at_order } = row;
+
+      if (!acc[order_id]) {
+        acc[order_id] = {
+          order_id,
+          status,
+          time,
+          items: [],
+        };
+      }
+
+      acc[order_id].items.push({
+        order_item_id,
+        product_id,
+        quantity,
+        price_at_order,
+      });
+
+      return acc;
+    }, {});
+
+    const formattedOrders = Object.values(orders);
+
+    return res.status(200).json({
+      orders: formattedOrders,
+    });
   } catch (err) {
-    console.error("Error fetching pending orders:", err);
+    console.error("Error fetching all orders:", err);
+
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
-export async function markOrderAsDeliveredController(req, res) {
-  const { orderId } = req.body;
+export async function deliverOrderAndInsertHistoryController(req, res) {
+  const { orderId, delivererId } = req.body;
+
 
   if (!orderId) {
     return res.status(400).json({ message: "Order ID is required" });
@@ -31,39 +65,19 @@ export async function markOrderAsDeliveredController(req, res) {
       });
     }
 
-    const updatedOrder = await markOrderAsDelivered(orderId);
+    const deliveredOrder = await deliverOrderAndInsertHistory(orderId, delivererId);
 
-    res.status(200).json({
-      message: "Order marked as delivered successfully",
-      order: updatedOrder,
-    });
-  } catch (err) {
-    console.error("Error updating order status:", err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-}
-
-export async function getOrderStatusController(req, res) {
-  const { orderId } = req.params;
-
-  if (!orderId) {
-    return res.status(400).json({ message: "Order ID is required" });
-  }
-
-  try {
-    const order = await getOrderById(orderId);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    if (!deliveredOrder) {
+      return res.status(500).json({ message: "Failed to deliver order" });
     }
 
     res.status(200).json({
-      orderId: order.id,
-      status: order.status,
-      lastUpdated: order.updated_at || order.created_at,
+      message: "Order marked as delivered and added to history successfully",
+      order: deliveredOrder,
     });
   } catch (err) {
-    console.error("Error fetching order status:", err);
+    console.error("Error delivering order and inserting history:", err);
+
     res.status(500).json({ message: "Internal Server Error" });
   }
 }

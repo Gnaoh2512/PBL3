@@ -151,30 +151,21 @@ export async function placeOrderController(req, res) {
   }
 }
 
-// Fetch user's orders
 export async function fetchOrdersController(req, res) {
   try {
-    // Ensure the user is authenticated
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    // Fetch orders using the model function (raw data)
     const result = await getUserOrders(req.user.id);
 
-    // Debug: Log the raw result to check its structure
-    console.log("Raw result:", result);
-
-    // If the result is not as expected or it's empty, return an empty array
     if (!result || result.length === 0) {
       return res.status(200).json({ orders: [] });
     }
 
-    // Group the results by order_id
     const orders = result.reduce((acc, row) => {
       const { order_item_id, order_id, status, time, product_id, quantity, price_at_order } = row;
 
-      // If order_id doesn't exist in the accumulator, initialize it
       if (!acc[order_id]) {
         acc[order_id] = {
           order_id,
@@ -184,7 +175,6 @@ export async function fetchOrdersController(req, res) {
         };
       }
 
-      // Add the order item to the items array for the respective order
       acc[order_id].items.push({
         order_item_id,
         product_id,
@@ -195,10 +185,8 @@ export async function fetchOrdersController(req, res) {
       return acc;
     }, {});
 
-    // Convert the accumulator object to an array of orders
     const formattedOrders = Object.values(orders);
 
-    // Return the formatted orders in the response
     return res.status(200).json({
       orders: formattedOrders,
     });

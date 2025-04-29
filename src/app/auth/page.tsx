@@ -13,7 +13,8 @@ function Page() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const isEmailValid = /^\S+@\S+\.\S+$/.test(email.trim());
-  const isPasswordValid = password.length >= 3;
+  const isPasswordValid = password.length >= 1;
+
   const isConfirmPasswordValid = mode !== "register" || password === confirmPassword;
   const isSubmitDisabled = !email || !isEmailValid || (mode !== "forgot" && (!password || !isPasswordValid)) || !isConfirmPasswordValid;
 
