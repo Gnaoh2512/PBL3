@@ -12,7 +12,6 @@ dotenv.config();
 
 const app = express();
 
-// Set up CORS
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -20,7 +19,6 @@ app.use(
   })
 );
 
-// Set up middleware
 app.use(cookieParser());
 app.use(express.json());
 
@@ -28,14 +26,13 @@ app.use(
   "/",
   express.static("public", {
     setHeaders: (res) => {
-      res.setHeader("Cache-Control", "public, max-age=2592000"); // 30 days in seconds
+      res.setHeader("Cache-Control", "public, max-age=2592000");
     },
   })
 );
 
 const PORT = process.env.PORT || 5000;
 
-// Routes
 app.use("/data", dataRouter);
 app.use("/auth", authRouter);
 app.use("/customer", customerRouter);

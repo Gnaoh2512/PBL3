@@ -2,18 +2,18 @@ import React from "react";
 import styles from "styles/header.module.scss";
 import Search from "./Search";
 import Link from "next/link";
-import User from "components/header/User";
+import Utils from "./Utils";
 
-function Header({ categories }: { categories: string[] }) {
+function Header() {
   return (
     <header className={styles.wrapper}>
       <div className={styles.upper}>
         <Link href="/" className={styles.logo}>
           Nesture
         </Link>
-        <Search categories={categories} />
+        <Search />
         <div className={styles.utilsWrapper}>
-          <User />
+          <Utils />
         </div>
       </div>
       <div className={styles.lower}>
@@ -24,10 +24,7 @@ function Header({ categories }: { categories: string[] }) {
           <Link href="/products">Products</Link>
         </div>
         <div>
-          <Link href="/news">News</Link>
-        </div>
-        <div>
-          <Link href="/discounts">Special deals</Link>
+          <Link href="/categories">Categories</Link>
         </div>
       </div>
     </header>

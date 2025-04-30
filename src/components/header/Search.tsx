@@ -3,11 +3,15 @@
 import React, { useRef, useState } from "react";
 import { Scrollbar } from "smooth-scrollbar-react";
 import styles from "styles/header.module.scss";
+import { useCategories } from "../../providers/categoryProvider";
+import { url } from "utils/pathFormat";
 
-function Search({ categories }: { categories: string[] }) {
+function Search() {
   const [filtered, setFiltered] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+
+  const categories = useCategories();
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
@@ -22,10 +26,35 @@ function Search({ categories }: { categories: string[] }) {
     }
   };
 
+  const handleItemClick = (category: string) => {
+    window.location.href = `/categories/${url(category)}`;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>, category: string) => {
+    // Handle keyboard navigation - activate on Enter or Space
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleItemClick(category);
+    }
+  };
+
   return (
     <div className={styles.searchWrapper}>
       <div className={styles.searchBar}>
-        <input type="text" ref={inputRef} placeholder="Explore our store" onChange={handleInput} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} />
+        <input
+          type="text"
+          ref={inputRef}
+          placeholder="Explore our store"
+          onChange={handleInput}
+          onFocus={() => setIsFocused(true)}
+          onBlur={(e) => {
+            // Keep focus if clicking inside the results
+            if (!e.relatedTarget || !e.relatedTarget.closest(`.${styles.searchResult}`)) {
+              // Add small delay to allow click events to process
+              setTimeout(() => setIsFocused(false), 150);
+            }
+          }}
+        />
         <button type="button" className={styles.clearBtn} onClick={handleClear}>
           <div style={{ padding: "0.5rem" }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -52,7 +81,7 @@ function Search({ categories }: { categories: string[] }) {
             <div className={styles.searchList}>
               {inputRef.current?.value && filtered.length === 0 && <div className={styles.filler}>{`${inputRef.current?.value} doesn't seem to exist`}</div>}
               {filtered.map((item, i) => (
-                <div key={i} data-category={item}>
+                <div key={i} data-category={item} className={styles.item} tabIndex={0} role="button" onClick={() => handleItemClick(item)} onKeyDown={(e) => handleKeyDown(e, item)}>
                   {item}
                 </div>
               ))}

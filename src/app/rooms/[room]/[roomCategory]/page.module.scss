@@ -30,6 +30,7 @@
 
   img {
     width: 100%;
+    height: auto;
     position: absolute;
     top: 0;
     left: 0;
@@ -62,5 +63,32 @@
   .price {
     font-size: 2rem;
     flex-shrink: 0;
+  }
+}
+
+.sort {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+
+  button {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background-color: #333;
+      color: #fff;
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
   }
 }

@@ -1,0 +1,53 @@
+.header {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.description {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.categoryList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.categoryItem {
+  position: relative;
+  font-size: 1.1rem;
+  width: fit-content;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  z-index: 1;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e0f7fa;
+    border-radius: 8px;
+    transform: scale(0.95);
+    transition: transform 0.2s ease, border-radius 0.3s, background-color 0.3s;
+    z-index: -1;
+  }
+
+  &:hover::before {
+    transform: scale(1.1);
+    border-radius: 12px;
+    background-color: #b2ebf2;
+  }
+
+  &:active::before {
+    transform: scale(0.92);
+  }
+}

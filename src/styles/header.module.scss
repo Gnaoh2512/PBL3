@@ -37,7 +37,7 @@
 }
 
 .lower {
-  max-width: 40rem;
+  max-width: 30rem;
   padding: 0.5rem 0 0.65rem;
   height: 3rem;
 }
@@ -134,6 +134,7 @@
 
   div {
     width: fit-content;
+    aspect-ratio: 1;
     min-width: 2rem;
     font-size: 1.25rem;
     font-weight: 600;

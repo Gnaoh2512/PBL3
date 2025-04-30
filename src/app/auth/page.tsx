@@ -49,7 +49,6 @@ function Page() {
         alert(`Sending reset email to ${email.trim()}`);
       }
 
-      // Reset password fields after action
       setPassword("");
       setConfirmPassword("");
     } catch (err: any) {
@@ -85,14 +84,9 @@ function Page() {
 
         <div className={styles.links}>
           {mode === "login" && (
-            <>
-              <span onClick={() => setMode("register")} className={styles.linkText}>
-                Create Account
-              </span>
-              <span onClick={() => setMode("forgot")} className={styles.linkText}>
-                Forgot Password?
-              </span>
-            </>
+            <span onClick={() => setMode("register")} className={styles.linkText}>
+              Create Account
+            </span>
           )}
           {mode !== "login" && (
             <span onClick={() => setMode("login")} className={styles.linkText}>

@@ -1,6 +1,5 @@
 import { getOrderById, getAllOrders, deliverOrderAndInsertHistory } from "../models/delivererModel.js";
 
-// Fetch all orders with categories and brands
 export async function getAllOrdersController(req, res) {
   try {
     const result = await getAllOrders();
@@ -37,15 +36,12 @@ export async function getAllOrdersController(req, res) {
       orders: formattedOrders,
     });
   } catch (err) {
-    console.error("Error fetching all orders:", err);
-
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error", err });
   }
 }
 
 export async function deliverOrderAndInsertHistoryController(req, res) {
   const { orderId, delivererId } = req.body;
-
 
   if (!orderId) {
     return res.status(400).json({ message: "Order ID is required" });
@@ -61,7 +57,6 @@ export async function deliverOrderAndInsertHistoryController(req, res) {
     if (existingOrder.status !== "pending") {
       return res.status(400).json({
         message: "Order cannot be marked as delivered because it is not pending",
-        currentStatus: existingOrder.status,
       });
     }
 
@@ -73,11 +68,8 @@ export async function deliverOrderAndInsertHistoryController(req, res) {
 
     res.status(200).json({
       message: "Order marked as delivered and added to history successfully",
-      order: deliveredOrder,
     });
   } catch (err) {
-    console.error("Error delivering order and inserting history:", err);
-
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error", err });
   }
 }

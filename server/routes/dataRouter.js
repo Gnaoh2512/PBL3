@@ -1,11 +1,20 @@
 import express from "express";
-import { getCategoryNamesController, getRoomCategoriesController, getRoomCategoryProductsController, getSingleProductController, getAllProductsController } from "../controllers/dataController.js";
+import {
+  getCategoriesController,
+  getProductsByCategoryNameController,
+  getRoomCategoryByRoomNameController,
+  getRoomCategoryProductsController,
+  getSingleProductController,
+  getAllProductsController,
+} from "../controllers/dataController.js";
 
 const router = express.Router();
 
-router.get("/category", getCategoryNamesController);
+router.get("/categories", getCategoriesController);
 
-router.get("/rooms/:roomName", getRoomCategoriesController);
+router.get("/categories/:categoryName", getProductsByCategoryNameController);
+
+router.get("/rooms/:roomName", getRoomCategoryByRoomNameController);
 
 router.get("/rooms/:roomName/:roomCategory", getRoomCategoryProductsController);
 

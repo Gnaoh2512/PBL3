@@ -1,65 +1,55 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Product } from "types";
 import callAPI from "utils/callAPI";
 import styles from "../rooms/[room]/[roomCategory]/page.module.scss";
 import Link from "next/link";
 
 function Page() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [rawProducts, setRawProducts] = useState<Product[]>([]);
+  const [sortMode, setSortMode] = useState<"price" | "stock">("price");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const data = await callAPI<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/data/products`);
-        setProducts(data);
+        setRawProducts(data);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        console.error("Failed to fetch products:", error);
       }
     };
 
     fetchProducts();
   }, []);
 
-  // Function to sort products based on selected option
-  const sortProducts = (option: string) => {
-    const sortedProducts = [...products];
-    switch (option) {
-      case "price-asc":
-        sortedProducts.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        sortedProducts.sort((a, b) => b.price - a.price);
-        break;
-      case "stock-asc":
-        sortedProducts.sort((a, b) => a.stock - b.stock);
-        break;
-      case "stock-desc":
-        sortedProducts.sort((a, b) => b.stock - a.stock);
-        break;
-      default:
-        break;
-    }
-    setProducts(sortedProducts);
+  const sortedProducts = useMemo(() => {
+    return [...rawProducts].sort((a, b) => {
+      const valueA = sortMode === "price" ? a.price : a.stock;
+      const valueB = sortMode === "price" ? b.price : b.stock;
+      return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+    });
+  }, [rawProducts, sortMode, sortDirection]);
+
+  const toggleSortMode = () => {
+    setSortMode((prev) => (prev === "price" ? "stock" : "price"));
+  };
+
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
   return (
     <div id="roomCategory">
       <div className={styles.heading}>Products</div>
-      <div className={styles.description}>
-        Explore our curated collection of high-quality products designed to meet your needs. From cutting-edge technology to stylish home essentials, each item is carefully selected for its
-        performance, durability, and value. Whether you're upgrading your gadgets or enhancing your living space, our diverse range of products offers something for everyone. Browse through various
-        categories and discover items that fit your style, preferences, and budget. Shop now to experience exceptional quality and unbeatable prices!
-      </div>
+      <div className={styles.description}>Explore our curated collection of high-quality products...</div>
       <div className={styles.sort}>
-        <button onClick={() => sortProducts("price-asc")}>Price: Low to High</button>
-        <button onClick={() => sortProducts("price-desc")}>Price: High to Low</button>
-        <button onClick={() => sortProducts("stock-asc")}>Stock: Low to High</button>
-        <button onClick={() => sortProducts("stock-desc")}>Stock: High to Low</button>
+        <button onClick={toggleSortMode}>Sort By: {sortMode}</button>
+        <button onClick={toggleSortDirection}>Direction: {sortDirection}</button>
       </div>
       <div className={styles.list}>
-        {products?.map((item, i) => (
+        {sortedProducts?.map((item, i) => (
           <div className={styles.item} key={i}>
             <Link href={`/products/${item.id}`}>
               <div className={styles.imgWrapper}>

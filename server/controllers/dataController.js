@@ -1,16 +1,16 @@
 import {
-  getCategoryNames,
+  getCategories,
   getRoomIdByName,
-  getRoomCategories,
-  getProductsByCategory,
+  getRoomCategoriesByRoomId,
+  getProductsByRoomCategoryId,
   getProductCategories,
-  getRoomCategoryByName,
+  getRoomCategoryIdsByName,
   getProductById,
   getAllProducts,
   getProductBrands,
+  getProductsByCategoryName,
 } from "../models/dataModel.js";
 
-// Helper function to format names
 function formatName(name) {
   if (!name) return "";
   return name
@@ -19,9 +19,9 @@ function formatName(name) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export async function getCategoryNamesController(req, res) {
+export async function getCategoriesController(req, res) {
   try {
-    const categoryNames = await getCategoryNames();
+    const categoryNames = await getCategories();
     res.json(categoryNames);
   } catch (err) {
     console.error("Error fetching category names:", err);
@@ -29,7 +29,7 @@ export async function getCategoryNamesController(req, res) {
   }
 }
 
-export async function getRoomCategoriesController(req, res) {
+export async function getRoomCategoryByRoomNameController(req, res) {
   const { roomName } = req.params;
 
   try {
@@ -40,8 +40,8 @@ export async function getRoomCategoriesController(req, res) {
       return res.status(404).json({ error: "Room not found" });
     }
 
-    const categoryNames = await getRoomCategories(roomId);
-    res.json(categoryNames);
+    const roomCategories = await getRoomCategoriesByRoomId(roomId);
+    res.json(roomCategories);
   } catch (err) {
     console.error("Error fetching categories:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -53,13 +53,13 @@ export async function getRoomCategoryProductsController(req, res) {
 
   try {
     const formattedRoomCategory = formatName(roomCategory);
-    const roomCategoryId = await getRoomCategoryByName(formattedRoomCategory);
+    const roomCategoryId = await getRoomCategoryIdsByName(formattedRoomCategory);
 
     if (!roomCategoryId) {
       return res.status(404).json({ error: "Room category not found" });
     }
 
-    const products = await getProductsByCategory(roomCategoryId);
+    const products = await getProductsByRoomCategoryId(roomCategoryId);
     if (products.length === 0) {
       return res.json([]);
     }
@@ -82,49 +82,55 @@ export async function getRoomCategoryProductsController(req, res) {
   }
 }
 
+export async function getProductsByCategoryNameController(req, res) {
+  const { categoryName } = req.params;
+  try {
+    const formattedCategoryName = formatName(categoryName);
+    const products = await getProductsByCategoryName(formattedCategoryName);
+
+    if (!products.length) {
+      return res.json([]);
+    }
+
+    const productIds = products.map((p) => p.id);
+    const categoriesMap = await getProductCategories(productIds);
+
+    const result = products.map((product) => ({
+      id: product.id,
+      price: parseFloat(product.price),
+      stock: product.stock,
+      brand: product.brand,
+      categories: categoriesMap[product.id] || [],
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching products by category name:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 export async function getSingleProductController(req, res) {
   const { id } = req.params;
   const productId = parseInt(id);
 
   try {
-    // Get main product data
-    const mainProduct = await getProductById(productId);
-    if (!mainProduct) {
+    const product = await getProductById(productId);
+    if (!product) {
       return res.status(404).json({ error: `Product with ID ${id} not found` });
     }
 
-    // Get categories for main product
-    const productCategoryInfo = await getProductCategories([mainProduct.id]);
+    const productCategoryInfo = await getProductCategories([product.id]);
 
-    const mainProductInfo = {
-      id: mainProduct.id,
-      price: parseFloat(mainProduct.price),
-      stock: mainProduct.stock,
-      brand: mainProduct.brand,
-      categories: productCategoryInfo[mainProduct.id] || [],
+    const formatted = {
+      id: product.id,
+      price: parseFloat(product.price),
+      stock: product.stock,
+      brand: product.brand,
+      categories: productCategoryInfo[product.id] || [],
     };
 
-    // Get related products
-    const relatedProducts = await getProductsByCategory(mainProduct.id_roomCategory);
-
-    // Get category info for related products
-    const relatedProductIds = relatedProducts.map((p) => p.id);
-    const relatedCategoriesMap = await getProductCategories(relatedProductIds);
-
-    const relatedProductsWithDetails = relatedProducts
-      .filter((product) => product.id !== productId)
-      .map((product) => ({
-        id: product.id,
-        price: parseFloat(product.price),
-        stock: product.stock,
-        brand: product.brand,
-        categories: relatedCategoriesMap[product.id] || [],
-      }));
-
-    res.json({
-      mainProduct: mainProductInfo,
-      relatedProducts: relatedProductsWithDetails,
-    });
+    res.json({ product: formatted });
   } catch (err) {
     console.error("Error fetching product:", err);
     res.status(500).json({ error: "Internal Server Error" });

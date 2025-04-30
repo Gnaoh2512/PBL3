@@ -1,6 +1,5 @@
 import pool from "../db.js";
 
-// Helper function for executing queries with error handling
 async function executeQuery(query, params = []) {
   try {
     const result = await pool.query(query, params);
@@ -11,13 +10,11 @@ async function executeQuery(query, params = []) {
   }
 }
 
-// Get category names from the database
-export async function getCategoryNames() {
+export async function getCategories() {
   const rows = await executeQuery('SELECT name FROM "Category"');
   return rows.map((row) => row.name);
 }
 
-// Get room ID by name
 export async function getRoomIdByName(roomName) {
   if (!roomName) return null;
 
@@ -25,27 +22,38 @@ export async function getRoomIdByName(roomName) {
   return rows.length > 0 ? rows[0].id : null;
 }
 
-// Get categories associated with a room
-export async function getRoomCategories(roomId) {
+export async function getRoomCategoriesByRoomId(roomId) {
   if (!roomId) return [];
 
-  const rows = await executeQuery('SELECT id, name FROM "RoomCategory" WHERE id_room = $1', [roomId]);
+  const rows = await executeQuery('SELECT * FROM "RoomCategory" WHERE id_room = $1', [roomId]);
   return rows.map((row) => ({
-    id: row.id,
     name: row.name,
+    id: row.id,
   }));
 }
 
-// Get room category ID by name
-export async function getRoomCategoryByName(roomCategory) {
+export async function getRoomCategoryIdsByName(roomCategory) {
   if (!roomCategory) return null;
 
   const rows = await executeQuery('SELECT id FROM "RoomCategory" WHERE LOWER(name) = LOWER($1)', [roomCategory]);
   return rows.length > 0 ? rows[0].id : null;
 }
 
-// Get products by category
-export async function getProductsByCategory(roomCategoryId) {
+export async function getProductsByCategoryName(categoryName) {
+  if (!categoryName) return [];
+
+  return executeQuery(
+    `SELECT p.id, p.price, p.stock, b.name AS brand
+     FROM "Product" p
+     JOIN "ProductCategory" pc ON p.id = pc.id_product
+     JOIN "Category" c ON pc.id_category = c.id
+     JOIN "Brand" b ON p.id_brand = b.id
+     WHERE LOWER(c.name) = LOWER($1)`,
+    [categoryName]
+  );
+}
+
+export async function getProductsByRoomCategoryId(roomCategoryId) {
   if (!roomCategoryId) return [];
 
   return executeQuery(
@@ -57,7 +65,6 @@ export async function getProductsByCategory(roomCategoryId) {
   );
 }
 
-// Get categories for multiple products
 export async function getProductCategories(productIds) {
   if (!productIds || productIds.length === 0) return {};
 
@@ -69,7 +76,6 @@ export async function getProductCategories(productIds) {
     [productIds]
   );
 
-  // Group categories by product ID
   const categoryMap = {};
   rows.forEach(({ id_product, category }) => {
     if (!categoryMap[id_product]) {
@@ -81,7 +87,6 @@ export async function getProductCategories(productIds) {
   return categoryMap;
 }
 
-// Get product by ID
 export async function getProductById(productId) {
   if (!productId) return null;
 
@@ -96,17 +101,14 @@ export async function getProductById(productId) {
   return rows.length > 0 ? rows[0] : null;
 }
 
-// Get all products
 export async function getAllProducts() {
   return executeQuery('SELECT * FROM "Product"');
 }
 
-// Get brands for multiple products
 export async function getProductBrands(productIds) {
   if (!productIds || productIds.length === 0) return {};
 
   try {
-    // Direct database query to get brand information
     const rows = await executeQuery(
       `SELECT p.id AS product_id, b.name AS brand_name
        FROM "Product" p
@@ -115,7 +117,6 @@ export async function getProductBrands(productIds) {
       [productIds]
     );
 
-    // Create a map of product IDs to brand names
     const brandsMap = {};
     rows.forEach((row) => {
       brandsMap[row.product_id] = row.brand_name;
@@ -124,6 +125,6 @@ export async function getProductBrands(productIds) {
     return brandsMap;
   } catch (err) {
     console.error("Error fetching brands:", err);
-    return {}; // Return empty map on error
+    return {};
   }
 }
