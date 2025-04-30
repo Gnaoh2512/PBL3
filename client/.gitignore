@@ -1,0 +1,21 @@
+# Next.js build output
+/.next/
+/out/
+
+# production build
+/build
+
+# testing
+/coverage
+
+# typescript
+next-env.d.ts
+
+# env files specific to client
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# macOS system files
+.DS_Store

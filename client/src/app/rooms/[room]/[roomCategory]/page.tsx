@@ -19,7 +19,6 @@ function Page() {
       try {
         const data = await callAPI<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/data/rooms/${room}/${roomCategory}`);
         setProducts(data);
-        console.log(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }

@@ -1,27 +1,16 @@
 {
-  "name": "pbl3",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "devB": "cd server && node index.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
-    "express-slow-down": "^2.0.3",
-    "firebase": "^11.4.0",
-    "jsonwebtoken": "^9.0.2",
     "next": "^15.3.0",
-    "pg": "^8.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sass": "^1.86.3",

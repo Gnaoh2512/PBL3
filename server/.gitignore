@@ -1,0 +1,20 @@
+# dependencies for the server
+/node_modules
+
+# environment variables (server-side)
+.env
+.env.*
+
+# production build (if any)
+/build
+
+# testing
+/coverage
+
+# macOS system files
+.DS_Store
+
+# server-specific debug logs
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*

@@ -34,7 +34,6 @@ function Page() {
       try {
         const data = await callAPI<RoomCategory[]>(`${process.env.NEXT_PUBLIC_API_URL}/data/rooms/${room}`);
         setRoomCategories(data);
-        console.log(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
