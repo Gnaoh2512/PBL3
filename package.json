@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack",
     "devB": "cd server && node index.js",
     "build": "next build",
-    "start": "next start",
+    "start": "npm run devB && next start",
     "lint": "next lint"
   },
   "dependencies": {

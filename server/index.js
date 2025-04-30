@@ -40,5 +40,5 @@ app.use("/admin", adminRouter);
 app.use("/deliverer", delivererRouter);
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on ${PORT}`);
 });
