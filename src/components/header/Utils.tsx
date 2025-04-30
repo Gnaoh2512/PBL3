@@ -73,7 +73,7 @@ function Utils() {
           </div>
         </>
       ) : (
-        <div style={{ whiteSpace: "nowrap" }}>
+        <div style={{ whiteSpace: "nowrap", aspectRatio: "unset" }}>
           <Link href="/auth">Sign in</Link>
         </div>
       )}

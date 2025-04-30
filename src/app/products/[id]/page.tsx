@@ -8,7 +8,7 @@ import styles from "./page.module.scss";
 import { useAuth } from "../../../providers/authProvider";
 
 type CartItem = {
-  id: number;
+  product_id: number;
   quantity: number;
 };
 
@@ -21,7 +21,7 @@ function Page() {
   const { user } = useAuth();
 
   const isCustomer = user?.role === "customer";
-  const cartItem = cartItems.find((item) => item.id === Number(id));
+  const cartItem = cartItems.find((item) => item.product_id === Number(id));
 
   useEffect(() => {
     if (!id) return;
@@ -117,7 +117,7 @@ function Page() {
             </div>
           </div>
 
-          {isCustomer && (isLoading ? <button disabled>Processing...</button> : <button onClick={handleUpdateItem}>{cartItem ? "Update Cart" : "Add to Cart"}</button>)}
+          {isCustomer && (isLoading ? <button disabled>Processing...</button> : <button onClick={handleUpdateItem}>{cartItem ? "Update quantity" : "Add to Cart"}</button>)}
         </div>
       </div>
     </div>

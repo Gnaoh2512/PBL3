@@ -128,7 +128,7 @@ export async function placeOrder(userId, items) {
 }
 
 export async function getUserOrders(userId) {
-  if (!userId) return {};
+  if (!userId) return [];
 
   const result = await executeQuery(
     `SELECT oi.id AS order_item_id, o.id AS order_id, o.status, o.time, oi.product_id, oi.quantity, oi.price_at_order
@@ -138,5 +138,5 @@ export async function getUserOrders(userId) {
     [userId]
   );
 
-  return result.length > 0 ? result : {};
+  return result.length > 0 ? result : [];
 }

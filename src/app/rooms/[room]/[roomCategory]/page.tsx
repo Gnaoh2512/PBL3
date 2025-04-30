@@ -38,8 +38,8 @@ function Page() {
           <div className={styles.item} key={i}>
             <Link href={`/products/${item.id}`}>
               <div className={styles.imgWrapper}>
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_1.webp`} alt={item.name} />
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_2.webp`} alt={item.name} />
+                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_1.webp`} alt={item.brand} />
+                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_2.webp`} alt={item.brand} />
               </div>
               <div className={styles.des}>
                 <div className={styles.words}>

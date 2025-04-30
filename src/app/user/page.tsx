@@ -33,7 +33,6 @@ function User() {
       alert("Account updated successfully!");
       setIsEditOpen(false);
     } catch (error) {
-      console.error("Error updating account:", error);
       alert(`Failed to update account: ${error}`);
     }
   };
@@ -47,7 +46,6 @@ function User() {
       alert("Account deleted successfully!");
       window.location.href = "/";
     } catch (error) {
-      console.error("Error deleting account:", error);
       alert(`Failed to delete account: ${error}`);
     } finally {
       setIsDeleteOpen(false);
@@ -125,4 +123,3 @@ function User() {
 }
 
 export default User;
-

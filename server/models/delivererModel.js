@@ -10,7 +10,7 @@ async function executeQuery(query, params = []) {
   }
 }
 
-export async function getAllOrders() {
+export async function getAllOrders(status) {
   try {
     const result = await executeQuery(
       `SELECT 
@@ -23,7 +23,8 @@ export async function getAllOrders() {
         oi.price_at_order
       FROM "Order" o
       JOIN "OrderItem" oi ON o.id = oi.order_id
-      WHERE o.status = 'pending'`
+      WHERE o.status = $1`,
+      [status]
     );
 
     return result;
@@ -63,7 +64,6 @@ export async function deliverOrderAndInsertHistory(orderId, delivererId) {
 
 export async function getOrderById(orderId) {
   const rows = await executeQuery(`SELECT * FROM "Order" WHERE id = $1`, [orderId]);
-
 
   return rows.length > 0 ? rows[0] : null;
 }

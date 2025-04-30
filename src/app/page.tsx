@@ -1,8 +1,9 @@
 import Image from "next/image";
 import styles from "./page.module.scss";
-import { rooms } from "./rooms/page";
 import Link from "next/link";
 import { norm, url } from "utils/pathFormat";
+
+const rooms = ["Bedroom", "Living room", "Outdoor", "Kitchen", "Bathroom", "Hallway"];
 
 const popularCategories = [
   {

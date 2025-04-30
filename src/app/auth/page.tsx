@@ -3,6 +3,7 @@
 import React, { FormEvent, useState } from "react";
 import styles from "./page.module.scss";
 import callAPI from "utils/callAPI";
+import { User } from "types";
 
 type Mode = "login" | "register" | "forgot";
 
@@ -23,13 +24,18 @@ function Page() {
 
     try {
       if (mode === "login") {
-        const res = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        const res = await callAPI<{ user: User }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
           method: "POST",
           body: { email: email.trim(), password },
         });
 
-        if (res.message === "Login successful") {
+        if (res.user) {
           window.location.href = "/";
+          setPassword("");
+          setConfirmPassword("");
+          return;
+        } else {
+          alert("Failed to login");
         }
       } else if (mode === "register") {
         if (!isConfirmPasswordValid) {
@@ -37,22 +43,22 @@ function Page() {
           return;
         }
 
-        const res = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        const res = await callAPI<{ user: User }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
           method: "POST",
           body: { email: email.trim(), password, role: "customer" },
         });
 
-        if (res.message === "User registered successfully") {
+        if (res.user) {
           window.location.href = "/";
+          setPassword("");
+          setConfirmPassword("");
+          return;
+        } else {
+          alert("Failed to register");
         }
-      } else if (mode === "forgot") {
-        alert(`Sending reset email to ${email.trim()}`);
       }
-
-      setPassword("");
-      setConfirmPassword("");
-    } catch (err: any) {
-      alert(err.message || "Something went wrong");
+    } catch (error) {
+      alert(error);
     }
   };
 

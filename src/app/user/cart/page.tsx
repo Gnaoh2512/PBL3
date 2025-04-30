@@ -27,7 +27,6 @@ function CartPage() {
     const fetchCartItems = async () => {
       try {
         const data = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-        console.log(data.items);
         setCartItems(data.items || []);
       } finally {
         setIsLoading(false);
@@ -190,12 +189,14 @@ function CartPage() {
                   </div>
                   <div>
                     <p>{item.brand_name}</p>
-                    <p>${item.price}</p>
+                    <p>${(Number(item.price) * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
               </label>
             ))}
           </div>
+          <p>Total: ${selectedCheckoutItems.reduce((total, item) => total + Number(item.price) * item.quantity, 0).toFixed(2)}</p>
+
           <button onClick={() => handleCheckout()}>Proceed</button>
           <button onClick={() => setIsCheckoutModalOpen(false)}>Close</button>
         </div>

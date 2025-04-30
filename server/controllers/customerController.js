@@ -120,7 +120,7 @@ export async function fetchOrdersController(req, res) {
   try {
     const result = await getUserOrders(req.user.id);
 
-    if (!result || result.length === 0) {
+    if (result.length === 0) {
       return res.status(200).json({ orders: [] });
     }
 
@@ -152,6 +152,6 @@ export async function fetchOrdersController(req, res) {
       orders: formattedOrders,
     });
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error", err });
+    return res.status(500).json({ message: "Internal Server Error", err });
   }
 }

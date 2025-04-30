@@ -2,7 +2,47 @@ import { getOrderById, getAllOrders, deliverOrderAndInsertHistory } from "../mod
 
 export async function getAllOrdersController(req, res) {
   try {
-    const result = await getAllOrders();
+    const result = await getAllOrders("pending");
+
+    if (!result || result.length === 0) {
+      return res.status(200).json({ orders: [] });
+    }
+
+    const orders = result.reduce((acc, row) => {
+      const { order_item_id, order_id, status, time, product_id, quantity, price_at_order } = row;
+
+      if (!acc[order_id]) {
+        acc[order_id] = {
+          order_id,
+          status,
+          time,
+          items: [],
+        };
+      }
+
+      acc[order_id].items.push({
+        order_item_id,
+        product_id,
+        quantity,
+        price_at_order,
+      });
+
+      return acc;
+    }, {});
+
+    const formattedOrders = Object.values(orders);
+
+    return res.status(200).json({
+      orders: formattedOrders,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error", err });
+  }
+}
+
+export async function getDeliveredOrders(req, res) {
+  try {
+    const result = await getAllOrders("delivered");
 
     if (!result || result.length === 0) {
       return res.status(200).json({ orders: [] });
