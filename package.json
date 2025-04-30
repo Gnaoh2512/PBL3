@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "devB": "cd server && node index.js",
-    "build": "next build",
+    "build": "npm run devB && next build",
     "start": "npm run devB && next start",
     "lint": "next lint"
   },
