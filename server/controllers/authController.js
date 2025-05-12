@@ -90,7 +90,7 @@ export function logout(req, res) {
     res.clearCookie("jwt", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     return res.status(200).json({ message: "Logged out successfully" });
@@ -142,7 +142,7 @@ export async function deleteAccount(req, res) {
     res.clearCookie("jwt", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
     });
 
     return res.status(200).json({ message: "Account deleted successfully" });
