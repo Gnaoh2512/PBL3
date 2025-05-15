@@ -101,17 +101,12 @@
 .userInfoField {
   flex-direction: column;
   gap: 0.25rem;
-}
 
-.userInfoField strong {
-  font-weight: 600;
-  color: #555;
-}
-
-.userInfoField p {
-  margin: 0;
-  font-size: 1rem;
-  color: #222;
+  strong {
+    font-weight: 600;
+    color: #555;
+    margin-right: 0.5rem;
+  }
 }
 
 .buttonGroup {

@@ -33,30 +33,34 @@ function Page() {
     <div id="roomCategory">
       <div className={styles.heading}>{cap(roomCategory)}</div>
       <div className={styles.list}>
-        {products?.map((item, i) => (
-          <div className={styles.item} key={i}>
-            <Link href={`/products/${item.id}`}>
-              <div className={styles.imgWrapper}>
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_1.webp`} alt={item.brand} />
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_2.webp`} alt={item.brand} />
-              </div>
-              <div className={styles.des}>
-                <div className={styles.words}>
-                  <p>
-                    {item.categories?.map((cat, i) => (
-                      <span key={i}>
-                        {cat}
-                        {i < item.categories.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </p>
-                  <p>{item.brand}</p>
+        {products.length !== 0 ? (
+          products?.map((item, i) => (
+            <div className={styles.item} key={i}>
+              <Link href={`/products/${item.id}`}>
+                <div className={styles.imgWrapper}>
+                  <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_1.webp`} alt={item.brand} />
+                  <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_2.webp`} alt={item.brand} />
                 </div>
-                <div className={styles.price}>{`$${item.price}`}</div>
-              </div>
-            </Link>
-          </div>
-        ))}
+                <div className={styles.des}>
+                  <div className={styles.words}>
+                    <p>
+                      {item.categories?.map((cat, i) => (
+                        <span key={i}>
+                          {cat}
+                          {i < item.categories.length - 1 ? ", " : ""}
+                        </span>
+                      ))}
+                    </p>
+                    <p>{item.brand}</p>
+                  </div>
+                  <div className={styles.price}>{`$${item.price}`}</div>
+                </div>
+              </Link>
+            </div>
+          ))
+        ) : (
+          <div>Out of products</div>
+        )}
       </div>
     </div>
   );

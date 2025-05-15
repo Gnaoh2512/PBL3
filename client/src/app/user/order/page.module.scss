@@ -136,3 +136,19 @@
     }
   }
 }
+
+.delivererButton {
+  background-color: #243119;
+  color: #fff;
+  border: #243119;
+  transition: background-color 0.3s, color 0.3s;
+  border: 3px solid #243119;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin-top: 1rem;
+
+  &:hover {
+    background-color: #fff;
+    color: #243119;
+  }
+}

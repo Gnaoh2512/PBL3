@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import callAPI from "utils/callAPI";
 import styles from "./page.module.scss";
 import { useAuth } from "../../../providers/authProvider";
+import Link from "next/link";
 
 type CartItem = {
   id: number;
@@ -127,7 +128,7 @@ function Page() {
         {cartItems.map((item) => (
           <div key={item.id} className={styles.cartItem} onClick={() => openModal(item)}>
             <div className={styles.imgWrapper}>
-              <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_1.webp`} />
+              <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.product_id}_1.webp`} />
             </div>
             <div className={styles.des}>
               <p>{item.brand_name}</p>
@@ -143,8 +144,10 @@ function Page() {
           {selectedItem && (
             <>
               <div className={styles.imgWrapper}>
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${selectedItem.id}_1.webp`} />
-                <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${selectedItem.id}_2.webp`} />
+                <Link href={`/products/${selectedItem.product_id}`}>
+                  <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${selectedItem.product_id}_1.webp`} />
+                  <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${selectedItem.product_id}_2.webp`} />
+                </Link>
               </div>
               <div className={styles.modalDes}>
                 <p>Brand: {selectedItem.brand_name}</p>
@@ -181,7 +184,7 @@ function Page() {
                 />
                 <div className={styles.checkoutItemContent}>
                   <div className={styles.checkoutImgWrapper}>
-                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.id}_1.webp`} alt={item.brand_name} />
+                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.product_id}_1.webp`} alt={item.brand_name} />
                   </div>
                   <div>
                     <p>{item.brand_name}</p>

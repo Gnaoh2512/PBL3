@@ -5,6 +5,8 @@ import { dynamicFontSize } from "utils/dynamicFonrsize";
 
 const CategoryContext = createContext<string[] | undefined>(undefined);
 
+const isValidCategory = (cat: string) => /^[a-zA-Z0-9\s-_]+$/.test(cat);
+
 export const CategoryProvider = ({ categories, children }: { categories: string[]; children: React.ReactNode }) => {
   const [loaded, setLoaded] = useState(false);
 
@@ -13,9 +15,11 @@ export const CategoryProvider = ({ categories, children }: { categories: string[
     setLoaded(true);
   }, []);
 
+  const filteredCategories = categories.filter(isValidCategory);
+
   if (!loaded) return <div></div>;
 
-  return <CategoryContext.Provider value={categories}>{children}</CategoryContext.Provider>;
+  return <CategoryContext.Provider value={filteredCategories}>{children}</CategoryContext.Provider>;
 };
 
 export const useCategories = () => {

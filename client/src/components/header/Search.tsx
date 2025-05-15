@@ -31,7 +31,6 @@ function Search() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>, category: string) => {
-    // Handle keyboard navigation - activate on Enter or Space
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleItemClick(category);
@@ -48,9 +47,7 @@ function Search() {
           onChange={handleInput}
           onFocus={() => setIsFocused(true)}
           onBlur={(e) => {
-            // Keep focus if clicking inside the results
             if (!e.relatedTarget || !e.relatedTarget.closest(`.${styles.searchResult}`)) {
-              // Add small delay to allow click events to process
               setTimeout(() => setIsFocused(false), 150);
             }
           }}

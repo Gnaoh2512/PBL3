@@ -24,7 +24,7 @@ const popularCategories = [
   {
     title: "Plants, plant pots & gardening",
     img: "/img/pop-gardening.jpeg",
-    href: "outdoor/plants-plant-pots-gardening",
+    href: "outdoor/plants,-plant-pots-&-gardening",
   },
   {
     title: "Lounge and relax furniture",
