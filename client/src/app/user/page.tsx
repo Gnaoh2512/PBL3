@@ -64,26 +64,32 @@ function User() {
 
   return (
     <div className={styles.container}>
-      <h2>{user?.role} Information</h2>
-      <p>
-        <strong>ID:</strong> {user?.id}
-      </p>
-      <p>
-        <strong>Email:</strong> {user?.email}
-      </p>
+      <div className={styles.userInfoContainer}>
+        <h1>{user?.role} Information</h1>
 
-      <div className={styles.buttonGroup}>
-        <button onClick={handleEdit} className={styles.editButton}>
-          Edit
+        <div className={styles.userInfoField}>
+          <strong>ID:</strong>
+          <span>{user?.id}</span>
+        </div>
+
+        <div className={styles.userInfoField}>
+          <strong>Email:</strong>
+          <span>{user?.email}</span>
+        </div>
+
+        <button onClick={handleLogout} className={styles.logoutButton}>
+          Log Out
         </button>
-        <button onClick={handleDelete} className={styles.deleteButton}>
-          Delete
-        </button>
+
+        <div className={styles.buttonGroup}>
+          <button onClick={handleEdit} className={styles.editButton}>
+            Edit
+          </button>
+          <button onClick={handleDelete} className={styles.deleteButton}>
+            Delete
+          </button>
+        </div>
       </div>
-
-      <button onClick={handleLogout} className={styles.logoutButton}>
-        Log Out
-      </button>
 
       {isEditOpen && (
         <div className={styles.modalOverlay}>

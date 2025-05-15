@@ -22,3 +22,20 @@ export type AuthContextType = {
   loading: boolean;
   logout: () => Promise<void>;
 };
+
+export type Order = {
+  order_id: number;
+  status: string;
+  time: string;
+};
+
+export type OrderItem = {
+  product_id: number;
+  quantity: number;
+  price_at_order: string;
+};
+
+export type SelectedOrder = {
+  order: Order;
+  items: OrderItem[];
+};

@@ -4,6 +4,11 @@
   height: 25rem;
   gap: 1.5rem;
 
+  a {
+    display: block;
+    height: 100%;
+  }
+
   img {
     height: 100%;
     width: auto;
@@ -22,6 +27,7 @@
   overflow: hidden;
   transition: box-shadow 0.3s;
   cursor: pointer;
+  height: 100%;
 
   .des {
     flex: 1;
@@ -157,13 +163,13 @@
   }
 
   &::before {
-    content: "Organize your kitchen";
+    content: "Sort out your living space";
   }
 }
 
 .popular {
   &::before {
-    content: "Shop our most popular categories";
+    content: "Shop our most popular room categories";
   }
 
   img {

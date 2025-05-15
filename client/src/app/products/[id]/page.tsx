@@ -1,27 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import callAPI from "utils/callAPI";
 import { Product } from "types";
 import styles from "./page.module.scss";
 import { useAuth } from "../../../providers/authProvider";
 
-type CartItem = {
-  product_id: number;
-  quantity: number;
-};
-
 function Page() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
-  const [quantity, setQuantity] = useState("1");
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [quantity, setQuantity] = useState(1);
+  const [cartQuantity, setCartQuantity] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
-
   const isCustomer = user?.role === "customer";
-  const cartItem = cartItems.find((item) => item.product_id === Number(id));
 
   useEffect(() => {
     if (!id) return;
@@ -30,59 +23,58 @@ function Page() {
       const data = await callAPI<{ product: Product }>(`${process.env.NEXT_PUBLIC_API_URL}/data/products/${id}`);
       setProduct(data.product);
     };
-
     fetchProduct();
+  }, [id]);
+
+  const fetchItem = useCallback(async () => {
+    const quantity = await callAPI<number | null>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart/${id}`);
+
+    setCartQuantity(quantity || null);
+    setQuantity(quantity || 1);
   }, [id]);
 
   useEffect(() => {
     if (!isCustomer) return;
 
-    const fetchCart = async () => {
-      const cartData = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-      setCartItems(cartData.items || []);
-    };
-
-    fetchCart();
-  }, [isCustomer]);
-
-  useEffect(() => {
-    if (cartItem) {
-      setQuantity(String(cartItem.quantity));
-    }
-  }, [cartItem]);
+    fetchItem();
+  }, [isCustomer, fetchItem]);
 
   const handleUpdateItem = async () => {
     if (!isCustomer) return alert("Only customers can add items to cart.");
     if (!product || isNaN(Number(quantity))) return;
-    if (cartItem && Number(quantity) === cartItem?.quantity) return alert("Select different quantity to update");
+    if (cartQuantity && Number(quantity) === cartQuantity) return alert("Select different quantity to update");
 
     setIsLoading(true);
     try {
       const response = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`, {
         method: "POST",
         body: {
-          productId: String(product.id),
+          productId: product.id,
           quantity: quantity,
         },
       });
       alert(response.message);
-      const cartData = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-      setCartItems(cartData.items || []);
+      fetchItem();
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuantity = event.target.value;
+    if (!product) return;
 
-    if (!isNaN(Number(newQuantity)) && Number(newQuantity) >= 1) {
+    const newQuantity = Number(event.target.value);
+    if (!isNaN(newQuantity) && newQuantity >= 1 && newQuantity <= product?.stock) {
       setQuantity(newQuantity);
     }
   };
 
-  if (!product) {
+  if (isLoading) {
     return <div className={styles.loading}>Loading product...</div>;
+  }
+
+  if (!product) {
+    return <div className={styles.loading}>Product doesnt exist</div>;
   }
 
   return (
@@ -117,7 +109,7 @@ function Page() {
             </div>
           </div>
 
-          {isCustomer && (isLoading ? <button disabled>Processing...</button> : <button onClick={handleUpdateItem}>{cartItem ? "Update quantity" : "Add to Cart"}</button>)}
+          {isCustomer && (isLoading ? <button disabled>Processing...</button> : <button onClick={handleUpdateItem}>{cartQuantity ? "Update quantity" : "Add to Cart"}</button>)}
         </div>
       </div>
     </div>

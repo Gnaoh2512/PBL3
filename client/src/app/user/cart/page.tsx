@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import callAPI from "utils/callAPI";
 import styles from "./page.module.scss";
+import { useAuth } from "../../../providers/authProvider";
 
 type CartItem = {
   id: number;
@@ -11,42 +12,41 @@ type CartItem = {
   product_id: number;
   quantity: number;
   stock: number;
-  time: string;
 };
 
-function CartPage() {
+function Page() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<CartItem | null>(null);
-  const [updatedQuantity, setUpdatedQuantity] = useState<string>("");
+  const [updatedQuantity, setUpdatedQuantity] = useState(1);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState<boolean>(false);
-  const [selectedCheckoutItems, setSelectedCheckoutItems] = useState<CartItem[]>([]); // Updated state
+  const [selectedCheckoutItems, setSelectedCheckoutItems] = useState<CartItem[]>([]);
+  const { user } = useAuth();
+
+  const fetchCartItems = useCallback(async () => {
+    if (user?.role !== "customer") return;
+
+    setIsLoading(true);
+    try {
+      const data = await callAPI<CartItem[]>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
+      setCartItems(data || []);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const data = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-        setCartItems(data.items || []);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchCartItems();
-  }, []);
+  }, [fetchCartItems]);
 
   const openModal = (item: CartItem) => {
     setSelectedItem(item);
-    setUpdatedQuantity(String(item.quantity));
+    setUpdatedQuantity(item.quantity);
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleUpdateItem = async () => {
+  const handleUpdateQuantity = async () => {
     if (!selectedItem) return;
     if (selectedItem && Number(updatedQuantity) === selectedItem?.quantity) return alert("Select different quantity to update");
 
@@ -55,32 +55,29 @@ function CartPage() {
       const response = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`, {
         method: "POST",
         body: {
-          productId: String(selectedItem.product_id),
+          productId: selectedItem.product_id,
           quantity: updatedQuantity,
         },
       });
       alert(response.message);
     } finally {
-      const cartData = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-      setCartItems(cartData.items || []);
-      setIsLoading(false);
+      fetchCartItems();
       setIsModalOpen(false);
     }
   };
 
-  const handleDeleteItem = async () => {
+  const handleRemoveItem = async () => {
     if (!selectedItem) return;
 
     try {
       const response = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`, {
         method: "DELETE",
-        body: { productId: String(selectedItem.product_id) },
+        body: { productId: selectedItem.product_id },
       });
       alert(response.message);
     } finally {
-      const data = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-      setCartItems(data.items || []);
-      handleCloseModal();
+      fetchCartItems();
+      setIsModalOpen(false);
     }
   };
 
@@ -94,21 +91,20 @@ function CartPage() {
       const response = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/order`, {
         method: "POST",
         body: {
-          items: selectedCheckoutItems.map((item) => ({
-            productId: String(item.product_id), // Use productId from CartItem
-            quantity: item.quantity,
-            priceAtOrder: item.price,
-          })),
+          itemIds: selectedCheckoutItems.map((item) => String(item.product_id)).join(","),
         },
       });
       alert(response.message);
     } finally {
-      const data = await callAPI<{ items: CartItem[] }>(`${process.env.NEXT_PUBLIC_API_URL}/customer/cart`);
-      setCartItems(data.items || []);
-      setSelectedCheckoutItems([]); // Clear selection after checkout
-      setIsCheckoutModalOpen(false); // Close checkout modal
+      fetchCartItems();
+      setSelectedCheckoutItems([]);
+      setIsCheckoutModalOpen(false);
     }
   };
+
+  if (user?.role !== "customer") {
+    return <div className={styles.loading}>This route is for customer only</div>;
+  }
 
   if (isLoading) {
     return <div className={styles.loading}>Loading cart items...</div>;
@@ -155,11 +151,11 @@ function CartPage() {
                 <p>Price: ${selectedItem.price}</p>
                 <div>
                   <label>Quantity: </label>
-                  <input type="text" value={updatedQuantity} onChange={(e) => setUpdatedQuantity(e.target.value)} min="1" max={selectedItem.stock.toString()} />
+                  <input type="text" value={updatedQuantity} onChange={(e) => setUpdatedQuantity(Number(e.target.value))} min="1" max={selectedItem.stock.toString()} />
                 </div>
-                <button onClick={handleUpdateItem}>Save</button>
-                <button onClick={handleDeleteItem}>Delete</button>
-                <button onClick={handleCloseModal}>Close</button>
+                <button onClick={handleUpdateQuantity}>Save</button>
+                <button onClick={handleRemoveItem}>Delete</button>
+                <button onClick={() => setIsModalOpen(false)}>Close</button>
               </div>
             </>
           )}
@@ -205,4 +201,4 @@ function CartPage() {
   );
 }
 
-export default CartPage;
+export default Page;

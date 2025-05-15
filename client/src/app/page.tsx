@@ -37,17 +37,21 @@ export default async function Home() {
   return (
     <div id="root">
       <div className={styles.hero}>
-        <div className={styles.left}>
-          <div className={styles.des}>
-            <span>Your Dream Patio Awaits!</span>
-            <p>Stylish and affordable</p>
-            <button>Explore Now</button>
+        <Link href="/rooms/outdoor">
+          <div className={styles.left}>
+            <div className={styles.des}>
+              <span>Your Dream Patio Awaits!</span>
+              <p>Stylish and affordable</p>
+              <button>Explore Now</button>
+            </div>
+            <Image src="/img/hero_1.webp" alt="hero1" width={500} height={500} />
           </div>
-          <Image src="/img/hero_1.webp" alt="hero1" width={500} height={500} />
-        </div>
-        <div className={styles.right}>
-          <Image src="/img/hero_2.webp" alt="hero2" width={500} height={500} />
-        </div>
+        </Link>
+        <Link href="/rooms/kitchen">
+          <div className={styles.right}>
+            <Image src="/img/hero_2.webp" alt="hero2" width={500} height={500} />
+          </div>
+        </Link>
       </div>
       <div className={styles.rooms}>
         {rooms.map((item, i) => (

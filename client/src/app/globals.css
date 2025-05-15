@@ -1,5 +1,5 @@
 html {
-  background-color: #f9f9f9;
+  background-color: #fff;
   color: #222;
   margin: unset;
   user-select: none;
@@ -10,9 +10,16 @@ html {
 
 body {
   font-family: ReadexPro-Regular;
+  color: #222;
   max-width: 80rem;
   width: 100%;
   margin: unset;
+  display: flex;
+  flex-direction: column;
+}
+
+div {
+  box-sizing: border-box;
 }
 
 a {
@@ -30,6 +37,7 @@ button {
 ul,
 ol {
   list-style: none;
+  padding: 0;
 }
 
 input:focus {
@@ -41,10 +49,6 @@ button,
 p {
   padding: unset;
   margin: unset;
-}
-
-div {
-  box-sizing: border-box;
 }
 
 @font-face {

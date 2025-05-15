@@ -1,5 +1,5 @@
 .page {
-  max-width: 600px;
+  width: 30rem;
   margin: 0 auto;
   padding: 2rem;
   background-color: #fff;
@@ -59,6 +59,32 @@
       &:hover {
         background-color: #005bb5;
       }
+    }
+  }
+}
+
+.selectBox {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+
+  select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    background-color: #fff;
+    color: #333;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 10px;
+    text-align: center;
+
+    &:focus {
+      border-color: #0070f3;
+      outline: none;
     }
   }
 }

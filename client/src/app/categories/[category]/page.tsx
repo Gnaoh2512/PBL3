@@ -11,11 +11,16 @@ import { url } from "utils/pathFormat";
 function Page() {
   const params = useParams();
   const categoryName = params.category;
+
   const [rawProducts, setRawProducts] = useState<Product[]>([]);
   const [sortMode, setSortMode] = useState<"price" | "stock">("price");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  const hasSpecialCharacters = /[^a-zA-Z0-9-_]/.test(categoryName as string);
+
   useEffect(() => {
+    if (hasSpecialCharacters) return;
+
     const fetchProducts = async () => {
       try {
         const data = await callAPI<Product[]>(`${process.env.NEXT_PUBLIC_API_URL}/data/categories/${url(categoryName as string)}`);
@@ -26,7 +31,7 @@ function Page() {
     };
 
     fetchProducts();
-  }, [categoryName]);
+  }, [categoryName, hasSpecialCharacters]);
 
   const sortedProducts = useMemo(() => {
     return [...rawProducts].sort((a, b) => {
@@ -43,6 +48,15 @@ function Page() {
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
+
+  if (hasSpecialCharacters) {
+    return (
+      <div className={styles.error}>
+        <h2>Invalid Category Name</h2>
+        <p>The category name contains invalid characters.</p>
+      </div>
+    );
+  }
 
   return (
     <div id="roomCategory">

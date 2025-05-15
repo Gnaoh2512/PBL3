@@ -1,46 +1,42 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import callAPI from "utils/callAPI";
 import styles from "./page.module.scss";
 import Link from "next/link";
 import { useAuth } from "../../../providers/authProvider";
-
-type OrderItem = {
-  order_item_id: number;
-  product_id: number;
-  quantity: number;
-  price_at_order: string;
-};
-
-type Order = {
-  order_id: number;
-  status: string;
-  time: string;
-  items: OrderItem[];
-};
+import { Order, SelectedOrder } from "types";
 
 function Page() {
+  const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<SelectedOrder | null>(null);
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "delivered">("all");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const { user } = useAuth();
 
+  const fetchOrders = useCallback(async () => {
+    try {
+      const fetchedOrders = await callAPI<Order[]>(`${process.env.NEXT_PUBLIC_API_URL}/${user?.role}/order`);
+
+      setOrders(fetchedOrders || []);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
-    if (!user?.role) return;
-
-    const fetchOrders = async () => {
-      try {
-        const response = await callAPI<{ orders: Order[] }>(`${process.env.NEXT_PUBLIC_API_URL}/${user?.role}/order`);
-        setOrders(response.orders || []);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchOrders();
-  }, [user?.role]);
+  }, [fetchOrders]);
+
+  const handleClick = async (order: Order) => {
+    const selected = await callAPI<SelectedOrder>(`${process.env.NEXT_PUBLIC_API_URL}/${user?.role}/order/${order.order_id}`);
+
+    if (selected) {
+      setSelectedOrder(selected);
+    }
+  };
 
   const markAsDelivered = async () => {
     if (!selectedOrder) return;
@@ -48,13 +44,15 @@ function Page() {
     try {
       setIsLoading(true);
 
-      await callAPI(`${process.env.NEXT_PUBLIC_API_URL}/deliverer/order`, {
+      const result = await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/deliverer/order`, {
         method: "PUT",
-        body: { orderId: selectedOrder.order_id, delivererId: user?.id },
+        body: {
+          orderId: selectedOrder.order.order_id,
+        },
       });
+      alert(result.message);
 
-      const updatedOrders = orders.filter((order) => order.order_id !== selectedOrder.order_id);
-      setOrders(updatedOrders);
+      setOrders((prev) => prev.filter((o) => o.order_id !== selectedOrder.order.order_id));
       setSelectedOrder(null);
     } finally {
       setIsLoading(false);
@@ -71,40 +69,59 @@ function Page() {
 
   return (
     <div className={styles.orders}>
-      <h1>Your Orders</h1>
-      <ul>
-        {orders.map((order) => (
-          <li key={order.order_id} className={styles.orderItem} onClick={() => setSelectedOrder(order)}>
-            <h2>{new Date(order.time).toLocaleDateString()}</h2>
-            <p>Status: {order.status}</p>
-          </li>
-        ))}
-      </ul>
+      <div className={styles.top}>
+        <h1>{user?.role !== "customer" ? "Orders need to be delivered" : "Your Orders"}</h1>
+        <div className={styles.controls}>
+          {user?.role !== "deliverer" && (
+            <button onClick={() => setFilterStatus((prev) => (prev === "all" ? "pending" : prev === "pending" ? "delivered" : "all"))}>
+              Show: {filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
+            </button>
+          )}
+
+          <button onClick={() => setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))}>Date: {sortDirection === "asc" ? "Ascending" : "Descending"}</button>
+        </div>
+      </div>
+      <div className={styles.orderList}>
+        {orders
+          .filter((order) => {
+            if (filterStatus === "all") return true;
+            return order.status.toLowerCase() === filterStatus;
+          })
+          .sort((a, b) => {
+            const aTime = Date.parse(a.time);
+            const bTime = Date.parse(b.time);
+            return sortDirection === "asc" ? aTime - bTime : bTime - aTime;
+          })
+          .map((order) => (
+            <li key={order.order_id} className={styles.orderItem} onClick={() => handleClick(order)}>
+              <span>{new Date(order.time).toLocaleDateString()}</span>
+              <span>{order.status}</span>
+            </li>
+          ))}
+      </div>
 
       {selectedOrder && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <h3>Items:</h3>
             <ul>
-              {selectedOrder.items.map((item) => (
-                <li className={styles.orderItemDetails} key={item.order_item_id}>
+              {selectedOrder.items.map((item, index) => (
+                <li className={styles.orderItemDetails} key={index}>
                   <Link href={`/products/${item.product_id}`}>
                     <img src={`${process.env.NEXT_PUBLIC_API_URL}/img/${item.product_id}_1.webp`} alt={`Product ${item.product_id}`} className={styles.productImage} />
-                    <div className={styles.itemDetails}>
-                      <p>Quantity: {item.quantity}</p>
-                      <p>Price at Order: ${item.price_at_order}</p>
-                    </div>
                   </Link>
+                  <div className={styles.itemDetails}>
+                    <p>Quantity: {item.quantity}</p>
+                    <p>
+                      Price at Order: <span style={{ color: "#629460" }}>${item.price_at_order}</span>
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
+
             <p className={styles.total}>
-              Total: $
-              {selectedOrder.items
-                .reduce((sum, item) => {
-                  return sum + parseFloat(item.price_at_order) * item.quantity;
-                }, 0)
-                .toFixed(2)}
+              Total: <span style={{ color: "#629460" }}>${selectedOrder.items.reduce((sum, item) => sum + parseFloat(item.price_at_order) * item.quantity, 0).toFixed(2)}</span>
             </p>
 
             {user?.role === "deliverer" && (
@@ -114,7 +131,7 @@ function Page() {
             )}
 
             <button className={styles.closeButton} onClick={() => setSelectedOrder(null)}>
-              Close
+              Return
             </button>
           </div>
         </div>
