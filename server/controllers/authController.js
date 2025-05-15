@@ -5,7 +5,7 @@ function getCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 }
@@ -90,7 +90,7 @@ export function logout(req, res) {
     res.clearCookie("jwt", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     });
 
     return res.status(200).json({ message: "Logged out successfully" });
@@ -142,7 +142,7 @@ export async function deleteAccount(req, res) {
     res.clearCookie("jwt", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     });
 
     return res.status(200).json({ message: "Account deleted successfully" });

@@ -1,23 +1,28 @@
-import { getUserCart, updateCartQuantity, removeCartItem, placeOrder, addOrUpdateCartItem, getUserOrders } from "../models/customerModel.js";
-import { getProductById } from "../models/dataModel.js";
+import { getCartItem, getCustomerCart, insertCartItem, removeCartItem, placeOrder, getCustomerOrders, getCustomerOrder } from "../models/customerModel.js";
 
-export async function getUserCartController(req, res) {
+export async function getCartItemController(req, res) {
+  const { productId } = req.params;
+
   try {
-    const cart = await getUserCart(req.user.id);
+    const result = await getCartItem(productId, req.user.id);
 
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-    res.status(200).json({
-      items: cart,
-      totalItems: cart.length,
-      totalPrice: total,
-    });
+    res.status(200).json(result[0].get_cart_product);
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error", err });
+    res.status(500).json({ message: "Server Error", err });
   }
 }
 
-export async function addToCartController(req, res) {
+export async function getCustomerCartController(req, res) {
+  try {
+    const cart = await getCustomerCart(req.user.id);
+
+    res.status(200).json(cart);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", err });
+  }
+}
+
+export async function insertCartItemController(req, res) {
   const { productId, quantity } = req.body;
 
   if (!productId) {
@@ -25,133 +30,91 @@ export async function addToCartController(req, res) {
   }
 
   if (!quantity || Number(quantity) <= 0) {
-    return res.status(400).json({ message: "Valid quantity is required" });
-  }
-
-  const product = await getProductById(productId);
-
-  if (!product) {
-    return res.status(404).json({ message: "Product not found" });
-  }
-
-  if (product.stock < Number(quantity)) {
-    return res.status(401).json({ message: "Not enough stock available" });
+    return res.status(200).json({ message: "Valid quantity is required" });
   }
 
   try {
-    await addOrUpdateCartItem(req.user.id, productId, quantity);
-
-    res.status(200).json({
-      message: "Cart updated successfully",
-    });
+    const result = await insertCartItem(req.user.id, productId, quantity);
+    res.status(200).json({ message: result[0].add_to_cart });
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error", err });
+    res.status(500).json({ message: "Server Error", err });
   }
 }
 
-export async function updateCartController(req, res) {
-  const { productId, quantity } = req.body;
-
-  if (!productId) {
-    return res.status(400).json({ message: "Product ID is required" });
-  }
-
-  if (!quantity || Number(quantity) <= 0) {
-    return res.status(400).json({ message: "Valid quantity is required" });
-  }
-
-  try {
-    const updatedItem = await updateCartQuantity(req.user.id, productId, quantity);
-
-    if (!updatedItem) {
-      return res.status(404).json({ message: "Cart item not found" });
-    }
-
-    res.status(200).json({
-      message: "Cart updated successfully",
-    });
-  } catch (err) {
-    console.error("Error updating cart:", err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-}
-
-export async function removeFromCartController(req, res) {
+export async function removeCartItemController(req, res) {
   const { productId } = req.body;
 
   if (!productId) {
-    return res.status(400).json({ message: "Product ID is required" });
+    return res.status(400).json({ message: "Cart id is required" });
   }
 
   try {
     const result = await removeCartItem(req.user.id, productId);
-
     if (result) {
       res.status(200).json({
-        message: "Item removed from cart successfully and stock updated",
+        message: "Item removed from cart successfully",
       });
     } else {
       res.status(404).json({ message: "Item not found in cart" });
     }
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error", err });
+    res.status(500).json({ message: "Server Error", err });
   }
 }
 
 export async function placeOrderController(req, res) {
-  const { items } = req.body;
-
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ message: "Items are required" });
-  }
+  const { itemIds } = req.body;
 
   try {
-    await placeOrder(req.user.id, items);
+    const result = await placeOrder(req.user.id, itemIds);
 
-    res.status(201).json({
-      message: "Order placed successfully",
-    });
+    res.status(200).json(result);
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error", err });
+    res.status(500).json({ message: "Server Error", err });
   }
 }
 
-export async function fetchOrdersController(req, res) {
+export async function getCustomerOrdersController(req, res) {
   try {
-    const result = await getUserOrders(req.user.id);
+    const result = await getCustomerOrders(req.user.id);
 
-    if (result.length === 0) {
-      return res.status(200).json({ orders: [] });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", err });
+  }
+}
+
+export async function getCustomerOrderController(req, res) {
+  const { orderId } = req.params;
+
+  if (!orderId) {
+    return res.status(400).json({ message: "Order id is required" });
+  }
+
+  try {
+    const result = await getCustomerOrder(orderId);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    const orders = result.reduce((acc, row) => {
-      const { order_item_id, order_id, status, time, product_id, quantity, price_at_order } = row;
+    const { order_id, status, order_time } = result[0];
 
-      if (!acc[order_id]) {
-        acc[order_id] = {
-          order_id,
-          status,
-          time,
-          items: [],
-        };
-      }
+    const formatted = {
+      order: {
+        order_id,
+        status,
+        time: order_time,
+      },
+      items: result.map((row) => ({
+        product_id: row.product_id,
+        quantity: row.quantity,
+        price_at_order: row.price_at_order,
+      })),
+    };
 
-      acc[order_id].items.push({
-        order_item_id,
-        product_id,
-        quantity,
-        price_at_order,
-      });
-
-      return acc;
-    }, {});
-
-    const formattedOrders = Object.values(orders);
-
-    return res.status(200).json({
-      orders: formattedOrders,
-    });
+    res.status(200).json(formatted);
   } catch (err) {
-    return res.status(500).json({ message: "Internal Server Error", err });
+    res.status(500).json({ message: "Server Error", err });
   }
 }

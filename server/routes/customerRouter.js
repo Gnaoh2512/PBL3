@@ -1,19 +1,31 @@
 import express from "express";
 import { protect, isCustomer } from "../auth.js";
-import { getUserCartController, addToCartController, placeOrderController, removeFromCartController, fetchOrdersController } from "../controllers/customerController.js";
+import {
+  getCustomerCartController,
+  getCartItemController,
+  insertCartItemController,
+  placeOrderController,
+  removeCartItemController,
+  getCustomerOrdersController,
+  getCustomerOrderController,
+} from "../controllers/customerController.js";
 
 const userRouter = express.Router();
 
 userRouter.use(protect, isCustomer);
 
-userRouter.get("/cart", getUserCartController);
+userRouter.get("/cart", getCustomerCartController);
 
-userRouter.post("/cart", addToCartController);
+userRouter.get("/cart/:productId", getCartItemController);
 
-userRouter.delete("/cart", removeFromCartController);
+userRouter.post("/cart", insertCartItemController);
+
+userRouter.delete("/cart", removeCartItemController);
 
 userRouter.post("/order", placeOrderController);
 
-userRouter.get("/order", fetchOrdersController);
+userRouter.get("/order", getCustomerOrdersController);
+
+userRouter.get("/order/:orderId", getCustomerOrderController);
 
 export default userRouter;

@@ -1,14 +1,4 @@
-import pool from "../db.js";
-
-async function executeQuery(query, params = []) {
-  try {
-    const result = await pool.query(query, params);
-    return result.rows;
-  } catch (error) {
-    console.error(`Database error: ${error.message}`, { query, params });
-    throw error;
-  }
-}
+import { executeQuery } from "../helpers/executeQuery.js";
 
 export async function findUserByEmail(email) {
   if (!email) return null;

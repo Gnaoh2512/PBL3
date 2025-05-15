@@ -1,31 +1,25 @@
-import pool from "../db.js";
+import { executeQuery } from "../helpers/executeQuery.js";
 
 export async function createProduct(brand, roomCategory, price, stock, categories) {
-  try {
-    const result = await pool.query(`SELECT add_product($1, $2, $3, $4, $5)`, [brand, roomCategory, price, stock, categories]);
-    return result.rows[0];
-  } catch (err) {
-    throw new Error("Error creating product: " + err.message);
-  }
+  const result = await executeQuery(`SELECT add_product($1, $2, $3, $4, $5)`, [brand, roomCategory, price, stock, categories]);
+
+  return result;
 }
 
-export async function getAllOrders() {
-  try {
-    const result = await pool.query(
-      `SELECT 
-        oi.id AS order_item_id, 
-        o.id AS order_id, 
-        o.status, 
-        o.time, 
-        oi.product_id, 
-        oi.quantity, 
-        oi.price_at_order
-      FROM "Order" o
-      JOIN "OrderItem" oi ON o.id = oi.order_id`
-    );
-    return result.rows;
-  } catch (err) {
-    throw new Error("Error fetching all orders: " + err.message);
-  }
+export async function updateProduct(productId, brand, roomCategory, price, stock, categories) {
+  const result = await executeQuery(`SELECT update_product($1, $2, $3, $4, $5, $6)`, [productId, brand, roomCategory, price, stock, categories]);
 
+  return result;
+}
+
+export async function updateStock(productId, stock) {
+  const result = await executeQuery(`SELECT update_product_stock($1, $2)`, [productId, stock]);
+
+  return result;
+}
+
+export async function deleteProductIfSafe(productId) {
+  const result = await executeQuery(`SELECT delete_product_if_safe($1)`, [productId]);
+
+  return result;
 }
