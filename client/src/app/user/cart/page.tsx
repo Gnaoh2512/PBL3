@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import callAPI from "utils/callAPI";
 import styles from "./page.module.scss";
-import { useAuth } from "../../../providers/AuthProvider";
+import { useAuth } from "../../../providers/authProvider";
 import Link from "next/link";
 
 type CartItem = {

@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "./page.module.scss";
-import { useCategories } from "../../providers/CategoryProvider";
+import { useCategories } from "../../providers/categoryProvider";
 import { url } from "utils/pathFormat";
 
 function Page() {

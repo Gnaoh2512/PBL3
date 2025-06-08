@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import callAPI from "utils/callAPI";
 import { Product } from "types";
 import styles from "./page.module.scss";
-import { useAuth } from "../../../providers/AuthProvider";
+import { useAuth } from "../../../providers/authProvider";
 
 function Page() {
   const { id } = useParams();

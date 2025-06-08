@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "../../providers/AuthProvider";
+import { useAuth } from "../../providers/authProvider";
 import styles from "./page.module.scss";
 import callAPI from "utils/callAPI";
 

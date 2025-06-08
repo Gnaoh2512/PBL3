@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { Scrollbar } from "smooth-scrollbar-react";
 import styles from "styles/header.module.scss";
-import { useCategories } from "../../providers/CategoryProvider";
+import { useCategories } from "../../providers/categoryProvider";
 import { url } from "utils/pathFormat";
 
 function Search() {
