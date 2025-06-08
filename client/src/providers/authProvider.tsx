@@ -15,6 +15,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await callAPI<{ message: string }>(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, { method: "POST" });
     } finally {
       setUser(null);
+      window.location.href = "/";
     }
   };
 
@@ -32,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     };
-    
+
     getUserProfile();
   }, []);
 

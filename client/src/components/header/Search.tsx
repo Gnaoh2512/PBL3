@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { Scrollbar } from "smooth-scrollbar-react";
 import styles from "styles/header.module.scss";
-import { useCategories } from "../../providers/categoryProvider";
+import { useCategories } from "../../providers/CategoryProvider";
 import { url } from "utils/pathFormat";
 
 function Search() {
@@ -37,6 +37,12 @@ function Search() {
     }
   };
 
+  const handleSearch = () => {
+    if (filtered.length > 0) {
+      handleItemClick(filtered[0]);
+    }
+  };
+
   return (
     <div className={styles.searchWrapper}>
       <div className={styles.searchBar}>
@@ -51,6 +57,12 @@ function Search() {
               setTimeout(() => setIsFocused(false), 150);
             }
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSearch();
+            }
+          }}
         />
         <button type="button" className={styles.clearBtn} onClick={handleClear}>
           <div style={{ padding: "0.5rem" }}>
@@ -59,7 +71,7 @@ function Search() {
             </svg>
           </div>
         </button>
-        <button type="submit" className={styles.searchBtn} aria-label="Search">
+        <button type="submit" className={styles.searchBtn} aria-label="Search" onClick={handleSearch}>
           <div style={{ padding: "0.5rem" }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path

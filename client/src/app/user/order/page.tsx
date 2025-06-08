@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import callAPI from "utils/callAPI";
 import styles from "./page.module.scss";
 import Link from "next/link";
-import { useAuth } from "../../../providers/authProvider";
+import { useAuth } from "../../../providers/AuthProvider";
 import { Order, SelectedOrder } from "types";
 
 function Page() {

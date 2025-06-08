@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "../../providers/authProvider";
+import { useAuth } from "../../providers/AuthProvider";
 import styles from "./page.module.scss";
 import callAPI from "utils/callAPI";
 
@@ -59,7 +59,6 @@ function User() {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
   };
 
   return (

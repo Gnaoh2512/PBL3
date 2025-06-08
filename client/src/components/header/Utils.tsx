@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../providers/authProvider";
+import { useAuth } from "../../providers/AuthProvider";
 import Link from "next/link";
 
 function Utils() {

@@ -17,15 +17,15 @@ function Header() {
         </div>
       </div>
       <div className={styles.lower}>
-        <div>
-          <Link href="/rooms">Rooms</Link>
-        </div>
-        <div>
-          <Link href="/products">Products</Link>
-        </div>
-        <div>
-          <Link href="/categories">Categories</Link>
-        </div>
+        <Link href="/rooms">
+          <div>Rooms</div>
+        </Link>
+        <Link href="/products">
+          <div>Products</div>
+        </Link>
+        <Link href="/categories">
+          <div>Categories</div>
+        </Link>
       </div>
     </header>
   );

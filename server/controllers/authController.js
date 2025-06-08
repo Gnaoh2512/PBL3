@@ -23,10 +23,6 @@ export async function register(req, res) {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    if (password.length < 3) {
-      return res.status(400).json({ message: "Password must be at least 8 characters" });
-    }
-
     if (role === "admin") {
       return res.status(403).json({ message: "Cannot register as admin" });
     }

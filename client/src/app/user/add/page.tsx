@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import styles from "./page.module.scss";
-import { useAuth } from "../../../providers/authProvider";
+import { useAuth } from "../../../providers/AuthProvider";
 import callAPI from "utils/callAPI";
 
 interface ProductData {
