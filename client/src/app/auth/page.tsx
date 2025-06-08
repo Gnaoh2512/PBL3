@@ -53,12 +53,11 @@ function Page() {
           setPassword("");
           setConfirmPassword("");
           return;
-        } else {
-          alert("Failed to register");
         }
       }
     } catch (error) {
-      alert(error);
+      alert(`Failed to ${mode}`);
+      console.log(error);
     }
   };
 
